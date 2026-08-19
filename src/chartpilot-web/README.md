@@ -9,7 +9,8 @@ rendered manifest view.
 npm install
 
 # Dev: Vite on http://127.0.0.1:5173, proxying /api to the API on 127.0.0.1:5080.
-# Start the API first:  dotnet run --project ../ChartPilot.Api
+# Start the API first (it listens on 5080 in every environment):
+#   dotnet run --project ../ChartPilot.Api
 npm run dev
 
 # Production build: emits ./dist, which ChartPilot.Api serves as static files.

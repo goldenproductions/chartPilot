@@ -33,7 +33,7 @@ touch the real binary.
 
 ### Runtime verification (not just tests)
 
-- `dotnet run --project src/ChartPilot.Api` starts on `http://127.0.0.1:5173`;
+- `dotnet run --project src/ChartPilot.Api` starts on `http://127.0.0.1:5080`;
   `GET /api/v1/environment` returns `helmAvailable: true`, Helm `4.2.4`, `resolutionSource: "path"`.
 - `POST /api/v1/workspaces` against `samples/charts/member-api` returns `201` with the full chart
   overview: metadata, 2 pinned dependencies, 4 values files, the schema, 14 templates, 13 detected kinds.

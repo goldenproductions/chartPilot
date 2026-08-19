@@ -25,10 +25,13 @@ Production / demo:
   dotnet run --project src/ChartPilot.Api
     ├─ /api/v1/*   Minimal API
     └─ /*          static files (the Vite build output)
-  → http://127.0.0.1:5173
+  → http://127.0.0.1:5080
 
 Development:
   vite dev  (port 5173) ──proxy /api──▶ dotnet watch (port 5080)
+
+The API listens on 5080 in BOTH modes. 5173 is the Vite dev server's port and is never taken by
+the API — Vite sets strictPort, so an API bound there would stop the dev server from starting.
 ```
 
 Binding is **127.0.0.1 only**. ChartPilot renders arbitrary Go templates from charts the user points it at; it is not a service to expose on a network interface.

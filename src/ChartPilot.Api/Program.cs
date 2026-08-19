@@ -25,7 +25,9 @@ var configuredUrls = builder.Configuration["urls"] ?? Environment.GetEnvironment
 
 if (string.IsNullOrWhiteSpace(configuredUrls))
 {
-    builder.WebHost.UseUrls("http://127.0.0.1:5173");
+    // 5080 in every environment. Port 5173 belongs to the Vite dev server, which sets
+    // strictPort, so binding the API there would stop `npm run dev` from starting at all.
+    builder.WebHost.UseUrls("http://127.0.0.1:5080");
 }
 else if (!SpaHosting.IsLoopbackOnly(configuredUrls))
 {

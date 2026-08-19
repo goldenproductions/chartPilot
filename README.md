@@ -71,17 +71,20 @@ ChartPilot never needs a kubeconfig and never contacts a cluster.
 
 ```bash
 dotnet run --project src/ChartPilot.Api
-# now listening on http://127.0.0.1:5173
+# now listening on http://127.0.0.1:5080
 ```
 
+The API listens on **5080 in every environment**. Port 5173 belongs to the Vite dev server, so the
+two never contend for it.
+
 The API binds loopback only and refuses to start if it is configured with a non-loopback URL. If
-`src/chartpilot-web/dist` has been built, the same host serves the GUI at `http://127.0.0.1:5173/`;
+`src/chartpilot-web/dist` has been built, the same host serves the GUI at `http://127.0.0.1:5080/`;
 otherwise only the API responds.
 
 Check that Helm was found:
 
 ```bash
-curl http://127.0.0.1:5173/api/v1/environment
+curl http://127.0.0.1:5080/api/v1/environment
 ```
 
 ```json
@@ -100,9 +103,11 @@ cd src/chartpilot-web
 npm install
 
 # Dev loop: Vite on http://127.0.0.1:5173, proxying /api to the API on 127.0.0.1:5080.
-# Start the API in its development profile first:
-#   dotnet run --project ../ChartPilot.Api --launch-profile "ChartPilot.Api (development)"
+# Start the API first, in either profile — both listen on 5080:
+#   dotnet run --project ../ChartPilot.Api
 npm run dev
+
+# Then open http://127.0.0.1:5173/ (Vite), not 5080 — you want hot reload.
 
 # Production build into ./dist, which ChartPilot.Api then serves
 npm run build

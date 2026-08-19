@@ -53,10 +53,10 @@ So `RenderedResource` lives in `Contracts/Manifests/RenderedResource.cs` and its
 ## Running it
 
 ```bash
-# API + SPA on http://127.0.0.1:5173
+# API + SPA on http://127.0.0.1:5080
 dotnet run --project src/ChartPilot.Api
 
-# Frontend dev loop: vite on 5173 proxying /api to dotnet watch on 5080
+# Frontend dev loop: vite on 5173 proxying /api to the API on 5080
 cd src/chartpilot-web && npm install && npm run dev
 
 # CLI
