@@ -26,6 +26,7 @@ ChartPilot is a local, web-based GUI for understanding, configuring and quality-
 | [`docs/architecture.md`](docs/architecture.md) | Process shape, solution layout, core pipeline, check engine, API, security posture |
 | [`docs/features.md`](docs/features.md) | Feature map and milestone delivery plan (M0–M5) |
 | [`docs/tutorial.md`](docs/tutorial.md) | **Walkthrough of the web UI**, with screenshots |
+| [`docs/tutorial.html`](docs/tutorial.html) | The same walkthrough as a styled page — open it in a browser |
 | [`docs/build-report.md`](docs/build-report.md) | What was actually built, the final build/test results, decisions and known gaps |
 
 ## Status

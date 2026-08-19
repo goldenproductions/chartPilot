@@ -3,6 +3,9 @@
 A walkthrough of the ChartPilot GUI, using the sample charts that ship with the repository. Every
 screenshot below is from a real session against Helm v4.2.4.
 
+There is a styled version of this same walkthrough in [`tutorial.html`](tutorial.html) — open it
+directly in a browser from a checkout; it needs no build step and no server.
+
 If you want the command-line equivalent instead, see the CLI section of the [README](../README.md).
 
 ---
@@ -29,7 +32,7 @@ ChartPilot needs `helm` on the machine, but **never a kubeconfig** — it does n
 
 ## 1. The empty state
 
-![The ChartPilot window before a chart is opened](images/01-empty-state.png)
+![The ChartPilot window before a chart is opened](images/01-empty-state.jpg)
 
 Three panes, and they stay in the same place for the whole session:
 
@@ -48,7 +51,7 @@ The header carries everything that changes what you are looking at: the chart, t
 
 Click **Open chart…**, then **Browse…**.
 
-![The open-chart dialog with the folder browser expanded](images/02-browse-dialog.png)
+![The open-chart dialog with the folder browser expanded](images/02-browse-dialog.jpg)
 
 A browser cannot hand a server an absolute path, so ChartPilot walks the folder tree server side and
 shows it here. Folders that contain a `Chart.yaml` are badged, so you can see which ones are charts
@@ -66,7 +69,7 @@ For this walkthrough, open `samples/charts/legacy-importer` — a deliberately b
 
 ## 3. Read the chart
 
-![Chart overview, resource tree and findings after opening a chart](images/03-overview-findings.png)
+![Chart overview, resource tree and findings after opening a chart](images/03-overview-findings.jpg)
 
 Opening a chart runs `helm template` immediately and evaluates every check, so the whole screen is
 populated at once:
@@ -90,7 +93,7 @@ populated at once:
 
 Click any finding.
 
-![Clicking a finding jumps to the offending line in the rendered manifest](images/04-finding-navigation.png)
+![Clicking a finding jumps to the offending line in the rendered manifest](images/04-finding-navigation.jpg)
 
 The centre pane switches to the **rendered manifest**, selects the offending resource, and
 highlights the exact line — here `privileged: true` on line 25 of the rendered Deployment.
@@ -112,7 +115,7 @@ The rule id families are `CP-SEC` (security), `CP-REL` (reliability), `CP-NET` (
 The **Profile** dropdown in the header picks a golden path. Switch `legacy-importer` from
 **Default** to **Sensitive member data service**:
 
-![The same chart re-scored under a stricter profile](images/05-profile-switch.png)
+![The same chart re-scored under a stricter profile](images/05-profile-switch.jpg)
 
 | | Default | Sensitive member data service |
 |---|---|---|
@@ -141,7 +144,7 @@ platform:
 
 Switch the centre pane to **values**.
 
-![The values editor with the chart's values.yaml](images/06-values-editor.png)
+![The values editor with the chart's values.yaml](images/06-values-editor.jpg)
 
 It is a full Monaco editor with YAML highlighting. When the chart ships a `values.schema.json`,
 you also get completion, hover documentation and inline validation against that schema.
@@ -151,7 +154,7 @@ Your edits live in an in-memory **draft**. ChartPilot never writes to your chart
 
 Change something (`replicaCount: 2` → `5`) and switch to **rendered manifest**:
 
-![The rendered Deployment showing the edited replica count](images/07-live-render.png)
+![The rendered Deployment showing the edited replica count](images/07-live-render.jpg)
 
 400 ms after you stop typing, ChartPilot re-runs `helm template`, re-parses the manifests and
 re-runs every check. `replicaCount: 5` becomes `replicas: 5` in the Deployment, and the findings and
@@ -169,7 +172,7 @@ Use the **Environment** dropdown to switch which values file is the base (`value
 
 Click **Env diff** in the header.
 
-![The environment diff across four values files](images/09-env-diff.png)
+![The environment diff across four values files](images/09-env-diff.jpg)
 
 Every values file side by side, one row per leaf path, with **Differences only** on by default. For
 `member-api` that is 80 paths across four files.
@@ -187,17 +190,17 @@ Three buttons in the header, all of which open a dialog you can copy from.
 
 **Export values** — the edited values as YAML, ready to paste back into your repo.
 
-![The edited values export dialog](images/08-export-values.png)
+![The edited values export dialog](images/08-export-values.jpg)
 
 **Report** — the full review as Markdown: score table, rendered resources, critical findings,
 warnings and recommended actions. Written to be pasted into a pull request as-is.
 
-![The Markdown review report](images/10-report.png)
+![The Markdown review report](images/10-report.jpg)
 
 **Workflow** — a GitHub Actions workflow for this chart: lint, render, run `chartpilot check`
 against the profile you selected, then deploy per environment.
 
-![The generated GitHub Actions workflow](images/11-workflow.png)
+![The generated GitHub Actions workflow](images/11-workflow.jpg)
 
 ---
 

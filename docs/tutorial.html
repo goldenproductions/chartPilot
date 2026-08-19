@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A step-by-step walkthrough of the ChartPilot web UI, from opening a chart to exporting a review.">
+<title>ChartPilot Flight Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --ground: #f6f7f9;
+    --surface: #ffffff;
+    --surface-sunk: #eef1f5;
+    --line: #dde2e9;
+    --line-soft: #e8ecf1;
+    --ink: #12161c;
+    --ink-muted: #5c6673;
+    --ink-faint: #8a94a2;
+    --accent: #0b6c77;
+    --accent-soft: #e3f0f2;
+    --critical: #b3242a;
+    --critical-soft: #fbeceb;
+    --warning: #8f5200;
+    --warning-soft: #fbf1e2;
+    --pass: #1c7a41;
+    --pass-soft: #e8f5ed;
+
+    --measure: 74ch;
+    --wide: 1240px;
+
+    --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    --font-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0e1115;
+      --surface: #161a20;
+      --surface-sunk: #1c2128;
+      --line: #2a313a;
+      --line-soft: #232931;
+      --ink: #e3e8ee;
+      --ink-muted: #9aa4b1;
+      --ink-faint: #6e7986;
+      --accent: #4cbfcc;
+      --accent-soft: #123034;
+      --critical: #ff8078;
+      --critical-soft: #341a19;
+      --warning: #dfa143;
+      --warning-soft: #33260f;
+      --pass: #5fc98a;
+      --pass-soft: #12301f;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0e1115;
+    --surface: #161a20;
+    --surface-sunk: #1c2128;
+    --line: #2a313a;
+    --line-soft: #232931;
+    --ink: #e3e8ee;
+    --ink-muted: #9aa4b1;
+    --ink-faint: #6e7986;
+    --accent: #4cbfcc;
+    --accent-soft: #123034;
+    --critical: #ff8078;
+    --critical-soft: #341a19;
+    --warning: #dfa143;
+    --warning-soft: #33260f;
+    --pass: #5fc98a;
+    --pass-soft: #12301f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: var(--wide);
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    padding: 72px 0 36px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    max-width: var(--measure);
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    margin: 0 0 32px;
+  }
+
+  .instruments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .instrument {
+    flex: 1 1 150px;
+    padding: 12px 18px;
+    border-right: 1px solid var(--line-soft);
+  }
+
+  .instrument:last-child { border-right: none; }
+
+  .instrument dt {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 4px;
+  }
+
+  .instrument dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- layout ---------- */
+
+  .body-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+    padding-top: 48px;
+  }
+
+  /* Declared before the media query below, so the wide-viewport rule wins the cascade.
+     Ordering these the other way round hides the rail at every width while the grid still
+     reserves its column, which collapses the article into a 200px strip. */
+  .rail { display: none; }
+
+  @media (min-width: 1040px) {
+    .body-grid {
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: 72px;
+    }
+
+    .rail { display: block; }
+  }
+
+  .rail-inner {
+    position: sticky;
+    top: 32px;
+  }
+
+  .rail h2 {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 14px;
+    font-weight: 500;
+  }
+
+  .rail ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    counter-reset: rail;
+  }
+
+  .rail a {
+    display: flex;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    line-height: 1.3;
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    padding-left: 10px;
+  }
+
+  .rail a:hover { color: var(--accent); border-left-color: var(--accent); }
+  .rail a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .rail .n {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    padding-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  main { min-width: 0; }
+
+  section { margin-bottom: 68px; scroll-margin-top: 24px; }
+
+  .step-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .step-n {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    flex: none;
+  }
+
+  h2.step-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(24px, 3vw, 31px);
+    letter-spacing: -0.018em;
+    line-height: 1.15;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    margin: 34px 0 10px;
+  }
+
+  p, ul, ol { max-width: var(--measure); }
+  p { margin: 0 0 16px; }
+
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--ink-faint); }
+
+  a { color: var(--accent); text-underline-offset: 2px; }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.87em;
+    background: var(--surface-sunk);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 0.1em 0.34em;
+  }
+
+  pre {
+    background: var(--surface-sunk);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 0 0 18px;
+    max-width: var(--wide);
+  }
+
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 26px 0 30px;
+    max-width: var(--wide);
+  }
+
+  figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--surface);
+  }
+
+  figcaption {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--ink-faint);
+    margin-top: 9px;
+    padding-left: 12px;
+    border-left: 2px solid var(--line);
+    max-width: var(--measure);
+  }
+
+  /* ---------- tables ---------- */
+
+  .table-wrap { overflow-x: auto; margin: 0 0 22px; max-width: var(--wide); }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 15px;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 9px 14px 9px 0;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+
+  th {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+    border-bottom-color: var(--line);
+  }
+
+  td.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- callout ---------- */
+
+  .note {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 3px 3px 0;
+    padding: 14px 18px;
+    margin: 24px 0;
+    max-width: var(--measure);
+    font-size: 16px;
+  }
+
+  .note p:last-child { margin-bottom: 0; }
+
+  .note strong { font-family: var(--font-display); font-weight: 600; }
+
+  /* ---------- severity chips ---------- */
+
+  .chip {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 1px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .chip-critical { background: var(--critical-soft); color: var(--critical); }
+  .chip-warning { background: var(--warning-soft); color: var(--warning); }
+  .chip-pass { background: var(--pass-soft); color: var(--pass); }
+
+  /* ---------- panes diagram ---------- */
+
+  .panes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 22px 0 26px;
+    max-width: var(--wide);
+  }
+
+  .pane {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px 16px;
+  }
+
+  .pane h4 {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+    font-weight: 500;
+  }
+
+  .pane p { font-size: 14.5px; margin: 0; color: var(--ink-muted); line-height: 1.5; }
+
+  @media (max-width: 700px) {
+    .panes { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 22px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    max-width: var(--wide);
+  }
+
+  footer p { max-width: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="eyebrow">ChartPilot · Web UI</p>
+    <h1>Flight Manual</h1>
+    <p class="standfirst">
+      How to review a Helm chart in the browser: open a chart, read what it renders, work the
+      findings, judge it against a golden path, and get the review out into a pull request.
+    </p>
+    <dl class="instruments">
+      <div class="instrument"><dt>Helm</dt><dd>4.2.4</dd></div>
+      <div class="instrument"><dt>Listens on</dt><dd>127.0.0.1:5080</dd></div>
+      <div class="instrument"><dt>Checks</dt><dd>57 rules</dd></div>
+      <div class="instrument"><dt>Profiles</dt><dd>7</dd></div>
+      <div class="instrument"><dt>Cluster access</dt><dd>none</dd></div>
+    </dl>
+  </header>
+
+  <div class="body-grid">
+
+    <nav class="rail" aria-label="Steps">
+      <div class="rail-inner">
+        <h2>Steps</h2>
+        <ol>
+          <li><a href="#start"><span class="n">00</span><span>Start it</span></a></li>
+          <li><a href="#layout"><span class="n">01</span><span>The empty state</span></a></li>
+          <li><a href="#open"><span class="n">02</span><span>Open a chart</span></a></li>
+          <li><a href="#read"><span class="n">03</span><span>Read the chart</span></a></li>
+          <li><a href="#finding"><span class="n">04</span><span>Work a finding</span></a></li>
+          <li><a href="#profile"><span class="n">05</span><span>Change the profile</span></a></li>
+          <li><a href="#edit"><span class="n">06</span><span>Edit values</span></a></li>
+          <li><a href="#diff"><span class="n">07</span><span>Compare environments</span></a></li>
+          <li><a href="#export"><span class="n">08</span><span>Export the review</span></a></li>
+          <li><a href="#first"><span class="n">09</span><span>A first session</span></a></li>
+          <li><a href="#trouble"><span class="n">10</span><span>Troubleshooting</span></a></li>
+        </ol>
+      </div>
+    </nav>
+
+    <main>
+
+      <section id="start">
+        <div class="step-head"><span class="step-n">00</span><h2 class="step-title">Start it</h2></div>
+
+        <pre><code># from the repository root
+dotnet run --project src/ChartPilot.Api</code></pre>
+
+        <p>Open <code>http://127.0.0.1:5080/</code>.</p>
+
+        <p>
+          The API listens on <strong>5080 in every environment</strong> and binds loopback only — it
+          refuses to start on a non-loopback address. If <code>src/chartpilot-web/dist</code> has been
+          built, the same process serves the GUI; otherwise build it once with
+          <code>npm install &amp;&amp; npm run build</code> in <code>src/chartpilot-web</code>.
+        </p>
+
+        <p>
+          For frontend development run <code>npm run dev</code> instead and use
+          <code>http://127.0.0.1:5173/</code>, which proxies <code>/api</code> to the API on 5080.
+          The two ports never collide.
+        </p>
+
+        <div class="note">
+          <p>
+            ChartPilot needs <code>helm</code> on the machine, but <strong>never a kubeconfig</strong>.
+            It renders and analyses charts; it does not contact a cluster. That is what makes it safe
+            to point at production charts from a laptop.
+          </p>
+        </div>
+      </section>
+
+      <section id="layout">
+        <div class="step-head"><span class="step-n">01</span><h2 class="step-title">The empty state</h2></div>
+
+        <figure>
+          <img src="images/01-empty-state.jpg" alt="The ChartPilot window before a chart is opened, showing three empty panes and a header bar">
+          <figcaption>Nothing opened yet. The three panes and the header stay in these positions for the whole session.</figcaption>
+        </figure>
+
+        <div class="panes">
+          <div class="pane">
+            <h4>Left</h4>
+            <p>Chart overview, then the tree of Kubernetes resources the chart actually rendered.</p>
+          </div>
+          <div class="pane">
+            <h4>Centre</h4>
+            <p>The values editor, toggled with the rendered manifest. Cause and effect on one screen.</p>
+          </div>
+          <div class="pane">
+            <h4>Right</h4>
+            <p>Findings grouped by severity, then the score broken down by category.</p>
+          </div>
+        </div>
+
+        <p>
+          The header carries everything that changes what you are looking at: the chart, the
+          <strong>Profile</strong>, the <strong>Environment</strong>, the Review / Env-diff switch,
+          three export buttons, and the score.
+        </p>
+      </section>
+
+      <section id="open">
+        <div class="step-head"><span class="step-n">02</span><h2 class="step-title">Open a chart</h2></div>
+
+        <p>Click <strong>Open chart…</strong>, then <strong>Browse…</strong>.</p>
+
+        <figure>
+          <img src="images/02-browse-dialog.jpg" alt="The open-chart dialog with the folder browser expanded, listing five sample charts each badged Chart.yaml">
+          <figcaption>Breadcrumbs across the top, folders below. Directories containing a Chart.yaml are badged, so charts are visible without opening them.</figcaption>
+        </figure>
+
+        <p>
+          A browser cannot hand a server an absolute path — neither a file input nor the File System
+          Access API exposes one — so ChartPilot walks the folder tree server side and shows it here.
+        </p>
+
+        <ul>
+          <li><strong>Single click</strong> a chart folder to select it, <strong>double click</strong> to open it immediately.</li>
+          <li>Any other folder navigates into it; the breadcrumbs walk back out.</li>
+          <li>You can still type or paste a path — browsing just fills the same field.</li>
+          <li>
+            Everything resolves under the <strong>allowlist root</strong> shown at the bottom of the
+            dialog. Set <code>CHARTPILOT_ALLOWLIST_ROOT</code> to point it at your own repositories.
+          </li>
+        </ul>
+
+        <p>For this walkthrough, open <code>samples/charts/legacy-importer</code> — a deliberately bad chart.</p>
+      </section>
+
+      <section id="read">
+        <div class="step-head"><span class="step-n">03</span><h2 class="step-title">Read the chart</h2></div>
+
+        <figure>
+          <img src="images/03-overview-findings.jpg" alt="Chart overview on the left, values in the centre, and a findings list on the right showing eight critical findings">
+          <figcaption>legacy-importer, freshly opened: 10 resources rendered, 8 critical findings, 32/100.</figcaption>
+        </figure>
+
+        <p>
+          Opening a chart runs <code>helm template</code> immediately and evaluates every check, so the
+          whole screen populates at once.
+        </p>
+
+        <ul>
+          <li>
+            <strong>Chart overview</strong> — name, version, appVersion, dependencies (unpinned ones
+            flagged), maintainers, the values files it found, whether it ships a
+            <code>values.schema.json</code>, and the kinds its templates can emit.
+          </li>
+          <li>
+            <strong>Resources</strong> — what was <em>actually</em> rendered, grouped as Workloads,
+            Networking, Security, Certificates and Configuration. The number beside each resource is
+            how many findings it carries.
+          </li>
+          <li>
+            <strong>Findings</strong> — grouped
+            <span class="chip chip-critical">Critical</span>
+            <span class="chip chip-warning">Warning</span>
+            Info and
+            <span class="chip chip-pass">Passed</span>, with a filter box.
+          </li>
+          <li><strong>Score</strong> — overall, plus one score per category.</li>
+        </ul>
+
+        <div class="note">
+          <p>
+            <strong>Passed checks are shown too.</strong> An empty findings list means every check ran
+            and passed — the panel says so explicitly, rather than leaving you to wonder whether
+            anything was evaluated at all.
+          </p>
+        </div>
+      </section>
+
+      <section id="finding">
+        <div class="step-head"><span class="step-n">04</span><h2 class="step-title">Work a finding</h2></div>
+
+        <p>Click any finding.</p>
+
+        <figure>
+          <img src="images/04-finding-navigation.jpg" alt="Clicking a finding switches the centre pane to the rendered manifest and highlights the privileged true line">
+          <figcaption>CP-SEC-002 clicked: the centre pane switches to the rendered manifest, selects the Deployment, and highlights line 25 — <code>privileged: true</code>.</figcaption>
+        </figure>
+
+        <p>Each finding carries four things:</p>
+
+        <ol>
+          <li><strong>The rule id</strong> — <code>CP-SEC-002</code>, stable, and the same id the CLI and CI report.</li>
+          <li><strong>What is wrong</strong>, naming the resource and the container.</li>
+          <li><strong>A remediation snippet</strong> you can paste — the actual YAML that fixes it.</li>
+          <li><strong>The YAML path</strong> it applies to.</li>
+        </ol>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Prefix</th><th>Covers</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>CP-SEC</code></td><td>root containers, privilege, capabilities, secrets, RBAC, NetworkPolicy</td></tr>
+              <tr><td><code>CP-REL</code></td><td>probes, requests and limits, replicas, disruption budgets, update strategy</td></tr>
+              <tr><td><code>CP-NET</code></td><td>Istio: gateways, authorization policies, mTLS, timeouts, retries</td></tr>
+              <tr><td><code>CP-CERT</code></td><td>cert-manager: renewal windows, durations, issuers, dangling TLS secrets</td></tr>
+              <tr><td><code>CP-OBS</code></td><td>metrics, standard labels, ownership, logging, correlation</td></tr>
+              <tr><td><code>CP-GOV</code></td><td>schema, pinned dependencies, classification, helm lint</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="profile">
+        <div class="step-head"><span class="step-n">05</span><h2 class="step-title">Change the profile</h2></div>
+
+        <p>
+          The <strong>Profile</strong> dropdown picks a golden path. Switch
+          <code>legacy-importer</code> from <strong>Default</strong> to
+          <strong>Sensitive member data service</strong>:
+        </p>
+
+        <figure>
+          <img src="images/05-profile-switch.jpg" alt="The same chart re-scored under the sensitive member data profile, showing 25 critical findings and a score of 5">
+          <figcaption>Same chart, same values, same rendered manifests. Only the profile changed.</figcaption>
+        </figure>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th></th><th>Default</th><th>Sensitive member data</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Overall score</td><td class="num">32 / 100</td><td class="num"><strong>5 / 100</strong></td></tr>
+              <tr><td>Critical</td><td class="num">8</td><td class="num"><strong>25</strong></td></tr>
+              <tr><td>Warning</td><td class="num">25</td><td class="num">10</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          A profile does not run different rules — it <strong>promotes severities</strong> on the same
+          catalogue. Missing a NetworkPolicy is a warning for a sandbox service and a critical finding
+          for one holding member data. That is why the two numbers can differ this much without a
+          single line of the chart changing.
+        </p>
+
+        <p>
+          The footer of the score card always states what produced the number:
+          <code>env default · profile Sensitive member data service · classification Unclassified</code>.
+        </p>
+
+        <p>A chart can also declare its own classification in values, which tightens the checks further:</p>
+
+        <pre><code>platform:
+  dataClassification: sensitive-personal-data
+  exposure: internal</code></pre>
+      </section>
+
+      <section id="edit">
+        <div class="step-head"><span class="step-n">06</span><h2 class="step-title">Edit values, watch the manifest change</h2></div>
+
+        <p>Switch the centre pane to <strong>values</strong>.</p>
+
+        <figure>
+          <img src="images/06-values-editor.jpg" alt="The values editor showing the chart's values.yaml in a Monaco editor">
+          <figcaption>A full Monaco editor. When the chart ships a values.schema.json you also get completion, hover documentation and inline validation against it.</figcaption>
+        </figure>
+
+        <p>
+          Your edits live in an in-memory <strong>draft</strong>. ChartPilot never writes to your chart
+          directory — use <strong>Export values</strong> when you want the edited file back.
+        </p>
+
+        <p>Change something — <code>replicaCount: 2</code> to <code>5</code> — and switch to <strong>rendered manifest</strong>:</p>
+
+        <figure>
+          <img src="images/07-live-render.jpg" alt="The rendered Deployment manifest showing replicas set to five after the values edit">
+          <figcaption>replicaCount: 5 in values becomes replicas: 5 in the Deployment, and the findings and score update with it.</figcaption>
+        </figure>
+
+        <p>
+          400&nbsp;ms after you stop typing, ChartPilot re-runs <code>helm template</code>, re-parses the
+          manifests and re-runs every check. If your YAML is momentarily invalid, or a template fails,
+          Helm's stderr appears in an error panel under the editor — with the failing file and line
+          linked, so you can click straight to it.
+        </p>
+
+        <p>
+          Use the <strong>Environment</strong> dropdown to change which values file is the base
+          (<code>values.yaml</code>, <code>values-prod.yaml</code>, …). Everything re-renders and
+          re-scores.
+        </p>
+      </section>
+
+      <section id="diff">
+        <div class="step-head"><span class="step-n">07</span><h2 class="step-title">Compare environments</h2></div>
+
+        <p>Click <strong>Env diff</strong> in the header.</p>
+
+        <figure>
+          <img src="images/09-env-diff.jpg" alt="A table comparing values across values.yaml, values-dev.yaml and values-prod.yaml, one row per configuration path">
+          <figcaption>member-api: 80 paths across four values files, with “Differences only” on by default.</figcaption>
+        </figure>
+
+        <p>
+          This is the view that answers <em>is prod actually stricter than dev?</em> Here
+          <code>env.LOG_LEVEL</code> goes debug → info → warning, <code>image.tag</code> is a release
+          candidate in dev but pinned in prod, and <code>istio.destinationRule.maxConnections</code>
+          doubles.
+        </p>
+
+        <p>
+          Anything set in only one environment shows as <em>not set</em> in the others — which is
+          usually where the surprises are.
+        </p>
+      </section>
+
+      <section id="export">
+        <div class="step-head"><span class="step-n">08</span><h2 class="step-title">Get the review out of the tool</h2></div>
+
+        <p>Three buttons in the header, each opening a dialog you can copy from.</p>
+
+        <h3>Export values</h3>
+        <p>The edited values as YAML, ready to paste back into your repository.</p>
+        <figure>
+          <img src="images/08-export-values.jpg" alt="A dialog showing the edited values as YAML ready to copy">
+          <figcaption>The draft, exported. Your chart directory on disk was never touched.</figcaption>
+        </figure>
+
+        <h3>Report</h3>
+        <p>
+          The full review as Markdown: score table, rendered resources, critical findings, warnings and
+          recommended actions — written to be pasted into a pull request as-is.
+        </p>
+        <figure>
+          <img src="images/10-report.jpg" alt="A dialog showing the generated Markdown review report">
+          <figcaption>The same review a reviewer would otherwise write by hand, with rule ids that match the CLI.</figcaption>
+        </figure>
+
+        <h3>Workflow</h3>
+        <p>
+          A GitHub Actions workflow for this chart: lint, render, run <code>chartpilot check</code>
+          against the profile you selected, then deploy per environment.
+        </p>
+        <figure>
+          <img src="images/11-workflow.jpg" alt="A dialog showing a generated GitHub Actions workflow for linting, rendering, checking and deploying the chart">
+          <figcaption>The GUI review and the CI gate run the same engine and report the same rule ids.</figcaption>
+        </figure>
+      </section>
+
+      <section id="first">
+        <div class="step-head"><span class="step-n">09</span><h2 class="step-title">A first session</h2></div>
+
+        <ol>
+          <li>
+            Open <code>samples/charts/member-api</code> on the <strong>Sensitive member data
+            service</strong> profile — the golden-path reference chart. It scores
+            <strong>100/100</strong>, so you can see what good looks like before you see what bad
+            looks like.
+          </li>
+          <li>
+            Open <code>samples/charts/legacy-importer</code> on the same profile. It scores
+            <strong>5/100</strong>. Read the criticals top to bottom; each one names a real production
+            risk.
+          </li>
+          <li>Fix one in the values editor and watch the score move.</li>
+          <li>Export the report, and compare it against what your own charts would produce.</li>
+        </ol>
+
+        <h3>Keyboard and mouse</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Action</th><th>How</th></tr></thead>
+            <tbody>
+              <tr><td>Close a dialog</td><td><code>Esc</code></td></tr>
+              <tr><td>Open the typed chart</td><td><code>Enter</code> in the path field</td></tr>
+              <tr><td>Select a chart folder / open it</td><td>single click / double click</td></tr>
+              <tr><td>Jump to a finding's line</td><td>click the finding</td></tr>
+              <tr><td>Show one resource instead of the whole manifest</td><td>click it in the resource tree</td></tr>
+              <tr><td>Resize the panes</td><td>drag the separators between them</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="trouble">
+        <div class="step-head"><span class="step-n">10</span><h2 class="step-title">Troubleshooting</h2></div>
+
+        <h3>“Helm is not available”</h3>
+        <p>
+          The banner gives you the install command (<code>winget install Helm.Helm</code>). ChartPilot
+          looks for the binary in configuration, then <code>PATH</code>, then the usual install
+          locations, and reports what it found at <code>GET /api/v1/environment</code>.
+        </p>
+
+        <h3>“Chart is outside the allowlist root”</h3>
+        <p>Charts must live under the allowlist root. Point it somewhere wider:</p>
+        <pre><code>CHARTPILOT_ALLOWLIST_ROOT=C:\Repos dotnet run --project src/ChartPilot.Api</code></pre>
+
+        <h3>A render fails</h3>
+        <p>
+          The error panel shows Helm's stderr verbatim, including the template and line. That is Helm's
+          own message — ChartPilot does not reinterpret it.
+        </p>
+
+        <h3>Nothing renders, but there is no error</h3>
+        <p>
+          The chart's values may have every optional resource disabled. Check the values editor for
+          <code>enabled: false</code> flags.
+        </p>
+      </section>
+
+      <footer>
+        <p>
+          Captured from a live session against Helm v4.2.4 on Windows 11. Every screenshot is the real
+          interface, not a mockup. Source and full specification live in the repository:
+          <code>docs/tutorial.md</code>, <code>docs/architecture.md</code>,
+          <code>docs/chartpilot-spec.md</code>.
+        </p>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
