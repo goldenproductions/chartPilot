@@ -1,0 +1,23 @@
+---
+# Source: member-api/templates/virtualservice.yaml
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: member-api
+spec:
+  hosts:
+    - members.acme.io
+  gateways:
+    - istio-system/shared-gateway
+  http:
+    - route:
+        - destination:
+            host: payments.payments-prod.svc.cluster.local
+---
+# Source: member-api/templates/destinationrule.yaml
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: payments
+spec:
+  host: payments.payments-prod.svc.cluster.local

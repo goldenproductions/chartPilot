@@ -4,6 +4,44 @@ The full functional description is in [`chartpilot-spec.md`](chartpilot-spec.md)
 
 ---
 
+## 0. Delivery status (verified 2026-08-19)
+
+| Milestone | Status | Notes |
+|---|---|---|
+| M0 — Walking skeleton | **Done** | |
+| M1 — Values editing and live render | **Partial** | Schema-driven *form* fields were not built; see below. |
+| M2 — The check engine | **Done** | 51 rules across six families. |
+| M3 — Profiles and governance | **Done** | 7 built-in profiles, classification promotion, suppressions with expiry. |
+| M4 — Making it travel | **Done** | Diff, Markdown report, workflow generator, values export. |
+| M5 — CLI, CI and polish | **Partial** | CLI and CI are built; see below. |
+
+Verified on Windows 11, .NET SDK 10.0.300, Node 24.8.0, Helm v4.2.4:
+`dotnet build` succeeded with 0 warnings and 0 errors; `dotnet test` reported **453 passed, 0 failed,
+0 skipped** (Core 356, Helm 66, Api 31); `npm run build` in `src/chartpilot-web` succeeded.
+
+### What remains in M1
+
+- The values editor is **plain YAML only**. `values.schema.json` is fed to `monaco-yaml`, which gives
+  completion, hover documentation and inline validation against the schema — but the spec's
+  "schema-driven mode" (generated text/number/boolean/enum **form controls** from the schema) does
+  not exist. Everything else in M1 — draft overlay, 400 ms debounced re-render with in-flight
+  cancellation, values-file switcher, template errors linked to the failing file and line — is built.
+
+### What remains in M5
+
+- **The CI workflow has never run.** `.github/workflows/ci.yml` is written and gates on ChartPilot's
+  own output (reference chart must pass, the two bad sample charts must exit 1), and all of its steps
+  have been run by hand locally, but the workflow itself has not yet executed on GitHub Actions.
+- **No README demo GIF.**
+- **No frontend test suite.** `chartpilot-web` has no vitest/Playwright tests; its correctness is
+  covered only by `tsc --noEmit` and by the API contract tests behind it.
+
+Everything else in M5 — `chartpilot check` with `--profile`, `--report`, `--workflow`, `--fail-on`
+and exit codes 0/1/2, plus `chartpilot profiles` / `chartpilot checks`, and the GUI's empty, loading
+and error states plus keyboard navigation of the resource tree and findings list — is built.
+
+---
+
 ## 1. Feature map
 
 | # | Feature | What it needs | Where it lives | Milestone |
@@ -31,7 +69,7 @@ Features 5 and 6 are the product. Everything before them exists to make them pos
 
 Each milestone is independently demonstrable. If work stops at the end of any one of them, what exists still shows something real.
 
-### M0 — Walking skeleton
+### M0 — Walking skeleton — **done**
 
 *Point it at a chart and see what comes out.*
 
@@ -43,7 +81,7 @@ Each milestone is independently demonstrable. If work stops at the end of any on
 
 **Done when:** opening a sample chart shows its metadata and its rendered resources, with no editing yet.
 
-### M1 — Values editing and live render
+### M1 — Values editing and live render — **partial**
 
 *Change a value, watch the manifest change.*
 
@@ -54,7 +92,7 @@ Each milestone is independently demonstrable. If work stops at the end of any on
 
 **Done when:** `replicaCount: 1 → 3` visibly updates `spec.replicas` in the rendered Deployment.
 
-### M2 — The check engine *(the core deliverable)*
+### M2 — The check engine *(the core deliverable)* — **done**
 
 *The tool starts having an opinion.*
 
@@ -67,7 +105,7 @@ Each milestone is independently demonstrable. If work stops at the end of any on
 
 **Done when:** the deliberately bad sample chart produces a known score and a known finding set, asserted by an end-to-end test.
 
-### M3 — Profiles and governance
+### M3 — Profiles and governance — **done**
 
 *The same catalog, tuned per service class.*
 
@@ -79,7 +117,7 @@ Each milestone is independently demonstrable. If work stops at the end of any on
 
 **Done when:** switching `sandbox-service` → `sensitive-member-data-service` on an unchanged chart materially changes the findings and the score.
 
-### M4 — Making it travel
+### M4 — Making it travel — **done**
 
 *Review output leaves the tool.*
 
@@ -90,7 +128,7 @@ Each milestone is independently demonstrable. If work stops at the end of any on
 
 **Done when:** a review produces a Markdown report that is pasteable into a pull request as-is.
 
-### M5 — CLI, CI and polish
+### M5 — CLI, CI and polish — **partial**
 
 - `chartpilot check` with `--profile`, `--report`, `--fail-on`, exit codes 0/1/2
 - The generated workflow actually runs `chartpilot check` against the sample chart in this repo's own CI

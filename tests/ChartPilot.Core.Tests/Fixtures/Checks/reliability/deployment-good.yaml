@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/member-api:1.4.2
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /healthz/ready
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: member-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: member-api

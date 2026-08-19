@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: legacy-importer-config
+  labels:
+    app: legacy-importer
+data:
+  importer.conf: |
+    [importer]
+    schedule = nightly
+    batch_size = 5000
+    source_host = {{ .Values.database.host }}
+    verify_tls = false

@@ -1,0 +1,20 @@
+---
+# Source: member-api/templates/nokind.yaml
+apiVersion: v1
+metadata:
+  name: orphan
+---
+# Source: member-api/templates/noname.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: member-api
+---
+# Source: member-api/templates/good.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: good
+data:
+  a: "1"

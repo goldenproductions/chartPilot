@@ -1,0 +1,31 @@
+{{- if .Values.replicaCount }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fixture-api.name" . }}
+  labels:
+    {{- include "fixture-api.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "fixture-api.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "fixture-api.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          # kind: NotAResource — a comment, and indented, so it must be ignored twice over
+          volumeMounts:
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+{{- end }}

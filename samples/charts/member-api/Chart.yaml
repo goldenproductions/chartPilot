@@ -1,0 +1,42 @@
+apiVersion: v2
+name: member-api
+description: Member API — the golden-path reference chart ChartPilot is demonstrated against.
+type: application
+version: 0.3.1
+appVersion: "1.12.0"
+kubeVersion: ">=1.28.0-0"
+
+home: https://example.com/platform/member-api
+icon: https://example.com/platform/member-api/icon.png
+sources:
+  - https://github.com/example/member-api
+
+maintainers:
+  - name: Member Platform Team
+    email: member-platform@example.com
+    url: https://example.com/teams/member-platform
+  - name: Andreas Hansen
+    email: andreas.hansen@example.com
+
+keywords:
+  - member
+  - api
+  - golden-path
+
+annotations:
+  platform.example.com/owner: member-platform
+  platform.example.com/tier: "1"
+
+dependencies:
+  - name: redis
+    version: 19.6.4
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+    tags:
+      - cache
+  - name: mongodb
+    version: 15.6.12
+    repository: https://charts.bitnami.com/bitnami
+    condition: mongodb.enabled
+    tags:
+      - database

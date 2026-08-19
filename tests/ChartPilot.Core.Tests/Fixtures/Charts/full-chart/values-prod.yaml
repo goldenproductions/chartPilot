@@ -1,0 +1,4 @@
+replicaCount: 3
+
+hosts:
+  - fixture-api.prod.example.com

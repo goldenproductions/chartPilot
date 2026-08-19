@@ -1,0 +1,17 @@
+---
+# Source: member-api/templates/list.yaml
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: list-one
+    data:
+      a: "1"
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: list-two
+      namespace: member-prod
+    type: Opaque

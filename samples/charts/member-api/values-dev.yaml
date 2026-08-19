@@ -1,0 +1,41 @@
+# Development overlay — cheapest environment, still on the golden path.
+
+replicaCount: 1
+
+image:
+  tag: "1.13.0-rc.2"
+
+platform:
+  dataClassification: internal
+  exposure: internal
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+podDisruptionBudget:
+  enabled: false
+
+istio:
+  gateway:
+    host: member-api.dev.internal.example.com
+  virtualService:
+    timeout: 10s
+
+certificate:
+  dnsNames:
+    - member-api.dev.internal.example.com
+
+serviceMonitor:
+  interval: 60s
+
+env:
+  LOG_LEVEL: debug
+  ASPNETCORE_URLS: http://0.0.0.0:8080
+
+mongodb:
+  enabled: false

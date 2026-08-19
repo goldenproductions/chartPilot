@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      hostNetwork: true
+      containers:
+        - name: api
+          image: ghcr.io/example/member-api:latest
+          securityContext:
+            runAsUser: 0
+            privileged: true
+          env:
+            - name: DB_PASSWORD
+              value: hunter2

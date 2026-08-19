@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-importer
+  labels:
+    app: legacy-importer
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: legacy-importer
+  template:
+    metadata:
+      labels:
+        app: legacy-importer
+    spec:
+      serviceAccountName: legacy-importer
+      containers:
+        - name: importer
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: true
+            runAsUser: 0
+            allowPrivilegeEscalation: true
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.database.host }}
+            - name: DB_USER
+              value: {{ .Values.database.user }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: legacy-importer-db
+                  key: password
+          volumeMounts:
+            - name: host-data
+              mountPath: /data
+      volumes:
+        - name: host-data
+          hostPath:
+            path: /var/lib/legacy-importer
+            type: DirectoryOrCreate

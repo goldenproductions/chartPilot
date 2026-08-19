@@ -1,0 +1,57 @@
+# Values for batch-report.
+
+schedule: "0 2 * * *"
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 1
+backoffLimit: 2
+activeDeadlineSeconds: 3600
+
+image:
+  repository: ghcr.io/example/batch-report
+  tag: "2.4.1"
+  pullPolicy: IfNotPresent
+
+platform:
+  team: member-platform
+  partOf: member-platform
+  dataClassification: internal
+  exposure: internal
+
+serviceAccount:
+  create: true
+  name: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  privileged: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 10001
+  capabilities:
+    drop:
+      - ALL
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+config:
+  reportFormat: parquet
+  outputBucket: s3://member-reports/nightly
+  lookbackDays: 1
+
+env:
+  LOG_LEVEL: info

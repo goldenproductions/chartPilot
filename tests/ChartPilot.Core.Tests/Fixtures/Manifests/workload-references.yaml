@@ -1,0 +1,63 @@
+---
+# Source: member-api/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: member-api
+---
+# Source: member-api/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: member-api-config
+data:
+  LOG_LEVEL: info
+---
+# Source: member-api/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      serviceAccountName: member-api
+      volumes:
+        - name: config
+          configMap:
+            name: member-api-config
+        - name: tls
+          secret:
+            secretName: member-api-tls
+      initContainers:
+        - name: migrate
+          image: ghcr.io/acme/member-api:1.4.2
+          envFrom:
+            - configMapRef:
+                name: member-api-config
+      containers:
+        - name: member-api
+          image: ghcr.io/acme/member-api:1.4.2
+          envFrom:
+            - secretRef:
+                name: member-api-db
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: member-api-external
+                  key: apiKey
+            - name: REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: platform-region
+                  key: region
+          volumeMounts:
+            - name: config
+              mountPath: /etc/config

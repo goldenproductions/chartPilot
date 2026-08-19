@@ -1,0 +1,11 @@
+apiVersion: v2
+name: batch-report
+description: Nightly member reporting job — a CronJob-only chart, so pod-spec checks are exercised on spec.jobTemplate.spec.template.spec.
+type: application
+version: 0.2.0
+appVersion: "2.4.1"
+kubeVersion: ">=1.28.0-0"
+
+maintainers:
+  - name: Member Platform Team
+    email: member-platform@example.com

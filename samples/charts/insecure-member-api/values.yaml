@@ -1,0 +1,96 @@
+# Everything here is deliberately the wrong default.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/example/member-api
+  # An unpinned tag: what is deployed today is not what was reviewed today.
+  tag: latest
+  pullPolicy: Always
+
+nameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  # A token mounted into every pod that does not need one.
+  automountServiceAccountToken: true
+
+rbac:
+  create: true
+  # Cluster-wide wildcard permissions.
+  clusterWide: true
+
+securityContext:
+  runAsUser: 0
+  privileged: true
+  allowPrivilegeEscalation: true
+  readOnlyRootFilesystem: false
+
+# No requests and no limits.
+resources: {}
+
+probes:
+  readiness:
+    enabled: false
+  liveness:
+    enabled: false
+
+service:
+  type: ClusterIP
+  port: 80
+
+# A password in plain text, rendered straight into a Secret.
+database:
+  host: member-db.internal
+  username: member_api
+  password: "S3cr3t-Pl4intext-Passw0rd"
+
+istio:
+  enabled: true
+  gateway:
+    create: true
+    # A gateway that answers for every host on the mesh ingress.
+    hosts:
+      - "*"
+  virtualService:
+    create: true
+    # No timeout, no retries.
+    timeout: ""
+    retries: 0
+  authorizationPolicy:
+    # No AuthorizationPolicy behind a public route.
+    create: false
+  peerAuthentication:
+    # No strict mTLS.
+    create: false
+  destinationRule:
+    create: false
+
+certificate:
+  enabled: true
+  dnsName: member-api.example.com
+  secretName: member-api-tls
+  # A year-long certificate with no renewBefore.
+  duration: 8760h
+  renewBefore: ""
+  issuerRef:
+    # This issuer is not shipped by the chart and is not in the cluster either.
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+
+networkPolicy:
+  create: false
+
+podDisruptionBudget:
+  create: false
+
+serviceMonitor:
+  create: false
+
+redis:
+  enabled: false
+
+platform:
+  dataClassification: sensitive-personal-data
+  exposure: public

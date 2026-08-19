@@ -1,0 +1,28 @@
+id: member-platform-strict
+name: Member platform (strict)
+description: The member platform golden path, tightened for services behind the public gateway.
+requirements:
+  requireReadinessProbe: true
+  requireLivenessProbe: true
+  requireResourceLimits: true
+  requireNetworkPolicy: true
+  requireMtls: true
+  allowPublicIngress: false
+  disallowLatestTag: true
+  minReplicas: 3
+severityOverrides:
+  CP-OBS-003: info
+  CP-CERT-004: warning
+  CP-SEC-002: critical
+disabledChecks:
+  - CP-REL-009
+  - CP-OBS-004
+weights:
+  security: 0.4
+  reliability: 0.3
+  operability: 0.2
+  governance: 0.1
+deductions:
+  critical: 30
+  warning: 10
+  info: 2

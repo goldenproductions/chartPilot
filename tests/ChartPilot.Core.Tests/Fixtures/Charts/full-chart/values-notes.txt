@@ -1,0 +1,1 @@
+Not a values file. The loader must ignore it because of its extension.

@@ -1,0 +1,26 @@
+apiVersion: v2
+name: fixture-api
+description: A fixture chart used by the ChartLoader tests.
+type: application
+version: 1.4.2
+appVersion: "3.1.0"
+kubeVersion: ">=1.28.0-0"
+
+maintainers:
+  - name: Platform Team
+    email: platform@example.com
+    url: https://example.com/teams/platform
+  - name: Second Maintainer
+  - email: nobody@example.com
+
+dependencies:
+  - name: redis
+    version: 19.6.4
+    repository: https://charts.example.com/bitnami
+    condition: redis.enabled
+    tags:
+      - cache
+      - storage
+  - name: mongodb
+    version: "^15.0.0"
+    repository: https://charts.example.com/bitnami

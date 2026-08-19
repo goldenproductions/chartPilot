@@ -1,0 +1,32 @@
+# Test overlay — production-shaped, with test data only.
+
+replicaCount: 2
+
+image:
+  tag: "1.12.0"
+
+platform:
+  dataClassification: internal
+  exposure: internal
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+istio:
+  gateway:
+    host: member-api.test.internal.example.com
+  virtualService:
+    timeout: 5s
+
+certificate:
+  dnsNames:
+    - member-api.test.internal.example.com
+
+env:
+  LOG_LEVEL: information
+  ASPNETCORE_URLS: http://0.0.0.0:8080

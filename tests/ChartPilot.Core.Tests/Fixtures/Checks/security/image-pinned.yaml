@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/member-api@sha256:0f1c2d3e4f5061728394a5b6c7d8e9f00112233445566778899aabbccddeeff0

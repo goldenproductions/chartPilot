@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: legacy-importer
+  labels:
+    app: legacy-importer
+spec:
+  hosts:
+    - {{ .Values.gateway.host | quote }}
+  gateways:
+    - {{ .Values.gateway.name }}
+  http:
+    - route:
+        - destination:
+            host: legacy-importer
+            port:
+              number: {{ .Values.service.port }}

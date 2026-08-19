@@ -1,0 +1,3 @@
+id: broken
+severityOverrides:
+  CP-SEC-001: catastrophic

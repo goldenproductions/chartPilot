@@ -169,10 +169,10 @@ Rules are registered by DI scan, so adding a check is adding one file plus one f
 | Prefix | Category | Examples |
 |---|---|---|
 | `CP-REL-*` | Reliability | missing probes, no resource requests/limits, single replica in prod, no PodDisruptionBudget, no update strategy |
-| `CP-SEC-*` | Security | runs as root, `privileged`, missing `runAsNonRoot` / `readOnlyRootFilesystem`, `latest` tag, inline secrets, SA token automount, missing NetworkPolicy, broad RBAC |
+| `CP-SEC-*` | Security | runs as root, `privileged`, missing `runAsNonRoot` / `readOnlyRootFilesystem`, `latest` tag, inline secrets, SA token automount, missing NetworkPolicy, broad RBAC, public exposure the profile or `platform.exposure` forbids |
 | `CP-NET-*` | Security/Operability | Istio: VirtualService without Gateway, public route without AuthorizationPolicy, no strict mTLS, missing DestinationRule, no timeout/retry |
 | `CP-CERT-*` | Operability | cert-manager: missing `renewBefore`, excessive duration, unknown issuer, dangling TLS secret reference |
-| `CP-OBS-*` | Operability | missing ServiceMonitor/Prometheus annotations, missing standard labels, no logging config |
+| `CP-OBS-*` | Operability | missing ServiceMonitor/Prometheus annotations, missing standard labels, no logging config, no request correlation |
 | `CP-GOV-*` | Governance | missing `values.schema.json`, unpinned dependencies, missing ownership labels, undeclared data classification |
 
 ### 5.3 Severity resolution — why there is one rule, not six
@@ -253,6 +253,8 @@ Two rendering flags are deliberate defaults rather than pass-throughs: `--includ
 - enforces a wall-clock timeout and an output size cap, and surfaces Helm's stderr verbatim into the GUI's error panel
 - resolves the chart path under a configured allowlist root and rejects traversal
 
+The allowlist root comes from `ChartPilot:AllowlistRoot` (or the `CHARTPILOT_ALLOWLIST_ROOT` environment variable). When neither is set the API falls back to the root of the checkout it is running from, so the bundled sample charts work out of the box; the CLI uses the parent directory of the chart it was pointed at. `GET /api/v1/environment` reports the effective root, and opening a chart outside it is a `400` at open time rather than a failure several requests later.
+
 `helm lint` runs through the same client, and its output is folded into the findings list under `CP-GOV-*`.
 
 ---
@@ -268,6 +270,7 @@ Minimal API under `/api/v1`. A **workspace** is an in-memory session (chart path
 | `GET` | `/workspaces/{id}` | chart overview |
 | `GET` | `/workspaces/{id}/values` | a values file, or the current draft |
 | `PUT` | `/workspaces/{id}/values` | replace the draft (validated against `values.schema.json` if present) |
+| `GET` | `/workspaces/{id}/values/export` | download the edited values as a `values.yaml` file |
 | `POST` | `/workspaces/{id}/render` | run `helm template` → resources + raw manifests |
 | `POST` | `/workspaces/{id}/review` | render + run checks → findings + scores |
 | `GET` | `/workspaces/{id}/diff` | structured diff across N values files |

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: legacy-cache
+description: Vendored placeholder for the legacy-cache dependency so the sample renders offline.
+type: application
+version: 1.2.3
+appVersion: "1.2.3"

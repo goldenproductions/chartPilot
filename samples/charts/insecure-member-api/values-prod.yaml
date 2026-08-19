@@ -1,0 +1,52 @@
+# Prod overlay - fixes some of the problems, so the environment diff has something to show
+# and so the same chart scores differently per environment.
+
+replicaCount: 3
+
+image:
+  tag: "1.4.2"
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  automountServiceAccountToken: false
+
+rbac:
+  clusterWide: false
+
+securityContext:
+  runAsUser: 10001
+  privileged: false
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  readiness:
+    enabled: true
+  liveness:
+    enabled: true
+
+istio:
+  gateway:
+    hosts:
+      - "member-api.example.com"
+  virtualService:
+    timeout: 5s
+    retries: 2
+
+certificate:
+  duration: 2160h
+  renewBefore: 360h
+
+podDisruptionBudget:
+  create: true
+
+platform:
+  exposure: public

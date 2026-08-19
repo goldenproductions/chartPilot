@@ -1,0 +1,4 @@
+# Placeholder values for the vendored mongodb dependency.
+# The real chart comes from https://charts.bitnami.com/bitnami; this stub renders nothing.
+enabled: true
+architecture: replicaset

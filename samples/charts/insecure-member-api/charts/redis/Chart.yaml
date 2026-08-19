@@ -1,0 +1,8 @@
+# A vendored stub so `helm template` can resolve the dependency without network access.
+# The parent chart deliberately declares it with an unpinned range.
+apiVersion: v2
+name: redis
+description: Stub subchart. Renders nothing.
+type: application
+version: 18.19.4
+appVersion: "7.2.4"

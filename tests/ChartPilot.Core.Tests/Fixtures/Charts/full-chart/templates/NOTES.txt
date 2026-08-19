@@ -1,0 +1,4 @@
+kind: NotScanned
+
+This file is not a template extension the loader enumerates, so it must not appear
+in ChartModel.Templates at all.

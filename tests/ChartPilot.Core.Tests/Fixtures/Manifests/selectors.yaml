@@ -1,0 +1,128 @@
+---
+# Source: member-api/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+        tier: backend
+    spec:
+      containers:
+        - name: member-api
+          image: ghcr.io/acme/member-api:1.4.2
+---
+# Source: member-api/templates/cronjob.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: member-api-reconcile
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: member-api-reconcile
+        spec:
+          containers:
+            - name: reconcile
+              image: ghcr.io/acme/member-api:1.4.2
+---
+# Source: member-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api
+spec:
+  selector:
+    app: member-api
+  ports:
+    - port: 80
+---
+# Source: member-api/templates/service-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api-external
+spec:
+  type: ExternalName
+  externalName: members.acme.io
+---
+# Source: member-api/templates/networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: member-api
+spec:
+  podSelector:
+    matchLabels:
+      app: member-api
+  policyTypes:
+    - Ingress
+---
+# Source: member-api/templates/networkpolicy-default-deny.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# Source: member-api/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: member-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: member-api
+---
+# Source: member-api/templates/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: member-api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: member-api
+  minReplicas: 3
+  maxReplicas: 10
+---
+# Source: member-api/templates/authorizationpolicy.yaml
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: member-api
+spec:
+  selector:
+    matchLabels:
+      app: member-api
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/gateway/sa/ingress
+---
+# Source: member-api/templates/peerauthentication.yaml
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+spec:
+  mtls:
+    mode: STRICT

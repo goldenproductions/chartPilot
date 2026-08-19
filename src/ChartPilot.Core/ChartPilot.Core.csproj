@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ChartPilot.Core</RootNamespace>
+    <AssemblyName>ChartPilot.Core</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+    <PackageReference Include="JsonSchema.Net" Version="7.3.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The pipeline's internal collaborators (values layering, selector reading) are tested directly. -->
+    <InternalsVisibleTo Include="ChartPilot.Core.Tests" />
+  </ItemGroup>
+
+</Project>

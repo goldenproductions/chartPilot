@@ -1,0 +1,25 @@
+# Production overlay for batch-report.
+
+schedule: "0 1 * * *"
+
+image:
+  tag: "2.4.1"
+
+platform:
+  dataClassification: sensitive-personal-data
+  exposure: internal
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+config:
+  outputBucket: s3://member-reports-prod/nightly
+  lookbackDays: 1
+
+env:
+  LOG_LEVEL: warning

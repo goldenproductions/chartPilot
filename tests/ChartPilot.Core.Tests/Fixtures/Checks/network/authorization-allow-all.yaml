@@ -1,0 +1,13 @@
+# An ALLOW policy whose single rule constrains nothing: it matches every request from every source,
+# which is what "allows all traffic" actually looks like in Istio.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-everything
+spec:
+  selector:
+    matchLabels:
+      app: member-api
+  action: ALLOW
+  rules:
+    - {}

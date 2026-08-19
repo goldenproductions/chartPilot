@@ -1,0 +1,19 @@
+---
+# Source: member-api/templates/first.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: first
+data:
+  a: "1"
+---
+# A comment-only document: the template rendered nothing because a condition was false.
+---
+---
+# Source: member-api/templates/second.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: second
+data:
+  b: "2"

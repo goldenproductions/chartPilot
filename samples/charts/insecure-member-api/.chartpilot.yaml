@@ -1,0 +1,7 @@
+# Suppressions for insecure-member-api.
+# Deliberately includes an expired entry: an expired suppression must itself become a finding.
+suppress:
+  - id: CP-SEC-004
+    resource: Deployment/test-insecure-member-api
+    reason: "Vendor image requires a writable root filesystem; tracked in PLAT-412"
+    expires: 2020-01-01

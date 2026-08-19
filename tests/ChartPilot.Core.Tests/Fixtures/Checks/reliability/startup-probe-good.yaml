@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      initContainers:
+        - name: migrate
+          image: ghcr.io/example/member-api-migrate:1.4.2
+      containers:
+        - name: api
+          image: ghcr.io/example/member-api:1.4.2
+          livenessProbe:
+            httpGet:
+              path: /healthz/live
+              port: 8080
+          startupProbe:
+            httpGet:
+              path: /healthz/started
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10

@@ -1,0 +1,19 @@
+# Istio's canonical deny-all: an ALLOW policy with no rules matches no request, so it denies
+# everything to the selected workloads. It is the strictest policy that can be written, and
+# reporting it as "allows all traffic" is exactly backwards.
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+spec: {}
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-nothing-explicitly
+spec:
+  selector:
+    matchLabels:
+      app: member-api
+  action: ALLOW
+  rules: []

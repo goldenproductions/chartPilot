@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/member-api:1.4.2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api
+spec:
+  selector:
+    app: member-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: member-api
+spec:
+  hosts:
+    - member-api.example.com
+  gateways:
+    - public-gateway
+  http:
+    - route:
+        - destination:
+            host: member-api
+            port:
+              number: 80

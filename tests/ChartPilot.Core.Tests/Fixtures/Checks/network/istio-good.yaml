@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: member-api
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/example/member-api:1.4.2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api
+spec:
+  selector:
+    app: member-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: public-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - member-api.example.com
+      tls:
+        mode: SIMPLE
+        credentialName: member-api-tls
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: member-api
+spec:
+  hosts:
+    - member-api.example.com
+  gateways:
+    - public-gateway
+  http:
+    - route:
+        - destination:
+            host: member-api
+            port:
+              number: 80
+      timeout: 5s
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: connect-failure,refused-stream,5xx
+---
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: member-api
+spec:
+  host: member-api
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: member-api
+spec:
+  selector:
+    matchLabels:
+      app: member-api
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            requestPrincipals:
+              - "*"
+---
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: default
+spec:
+  mtls:
+    mode: STRICT

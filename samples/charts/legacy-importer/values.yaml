@@ -1,0 +1,35 @@
+# Values for legacy-importer. Copied over from the old VM deployment scripts.
+
+replicaCount: 1
+
+image:
+  repository: registry.example.com/legacy/importer
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+# The importer's database credentials. Rotated by hand, once a year, in this file.
+database:
+  host: legacy-db.internal
+  user: importer
+  password: S3cr3t-Import3r-2019
+
+gateway:
+  name: public-gateway
+  host: "*"
+
+certificate:
+  secretName: legacy-importer-tls
+  duration: 8760h
+  issuer: letsencrypt-prod
+  dnsName: importer.example.com
+
+rbac:
+  create: true
+
+legacy-cache:
+  enabled: true

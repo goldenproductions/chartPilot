@@ -1,0 +1,22 @@
+---
+# Source: member-api/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scripts
+data:
+  bootstrap.sh: |
+    #!/bin/sh
+    echo "rendering"
+    ---
+    echo "still the same document"
+  note: "a --- inside a quoted string"
+---
+# Source: member-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api
+spec:
+  selector:
+    app: member-api

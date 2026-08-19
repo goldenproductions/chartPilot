@@ -1,0 +1,17 @@
+# Production overlay. Same as the default, with the production database and a real hostname.
+
+replicaCount: 1
+
+image:
+  tag: latest
+
+database:
+  host: legacy-db-prod.internal
+  user: importer_prod
+  password: Pr0d-Import3r-2019
+
+certificate:
+  dnsName: importer.example.com
+
+gateway:
+  host: "*"

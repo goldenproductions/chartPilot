@@ -1,0 +1,58 @@
+# Three ways out of the cluster: a plain Ingress, a LoadBalancer Service and an Istio Gateway that
+# a VirtualService actually binds. Each is a public route regardless of what the mesh does next.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: member-api
+spec:
+  rules:
+    - host: member-api.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: member-api
+                port:
+                  number: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api-lb
+spec:
+  type: LoadBalancer
+  selector:
+    app: member-api
+  ports:
+    - port: 80
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: public-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: member-api
+spec:
+  hosts:
+    - "member-api.example.com"
+  gateways:
+    - public-gateway
+  http:
+    - route:
+        - destination:
+            host: member-api

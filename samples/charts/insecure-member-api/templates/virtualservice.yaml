@@ -1,0 +1,27 @@
+{{- if and .Values.istio.enabled .Values.istio.virtualService.create }}
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ include "insecure-member-api.fullname" . }}
+  labels:
+    {{- include "insecure-member-api.labels" . | nindent 4 }}
+spec:
+  hosts:
+    {{- toYaml .Values.istio.gateway.hosts | nindent 4 }}
+  gateways:
+    - {{ include "insecure-member-api.fullname" . }}
+  http:
+    - route:
+        - destination:
+            host: {{ include "insecure-member-api.fullname" . }}
+            port:
+              number: {{ .Values.service.port }}
+      {{- if .Values.istio.virtualService.timeout }}
+      timeout: {{ .Values.istio.virtualService.timeout }}
+      {{- end }}
+      {{- if gt (int .Values.istio.virtualService.retries) 0 }}
+      retries:
+        attempts: {{ .Values.istio.virtualService.retries }}
+        perTryTimeout: 2s
+      {{- end }}
+{{- end }}

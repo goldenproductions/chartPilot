@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build, test and self-review
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # The end-to-end tests and the self-review below both shell out to the real binary.
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v4.2.4
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity minimal
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: src/chartpilot-web/package-lock.json
+
+      - name: Build the web client
+        working-directory: src/chartpilot-web
+        run: |
+          npm ci
+          npm run build
+
+      # ---------------------------------------------------------------- self-review
+      # ChartPilot gates this repository on its own output. The golden path chart has to stay
+      # clean, and the deliberately-bad charts have to keep failing: a rule that silently stops
+      # firing is exactly the regression the sample charts exist to catch.
+
+      - name: ChartPilot gate - the reference chart must pass
+        run: >
+          dotnet run --project src/ChartPilot.Cli --configuration Release --no-build --
+          check samples/charts/member-api
+          --values values-prod.yaml
+          --profile sensitive-member-data-service
+          --fail-on warning
+          --report chartpilot-member-api.md
+
+      - name: ChartPilot gate - the bad charts must still fail
+        run: |
+          set +e
+          for chart in insecure-member-api legacy-importer; do
+            dotnet run --project src/ChartPilot.Cli --configuration Release --no-build -- \
+              check "samples/charts/$chart" --fail-on critical
+            code=$?
+            if [ "$code" -ne 1 ]; then
+              echo "::error::samples/charts/$chart exited $code; expected 1 (critical findings)."
+              exit 1
+            fi
+            echo "samples/charts/$chart correctly failed the critical gate."
+          done
+
+      - name: Upload the review report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chartpilot-review
+          path: chartpilot-member-api.md
+          if-no-files-found: ignore

@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "member-api values",
+  "description": "Schema for the values ChartPilot's guided editor exposes. Deliberately covers the fields a platform team cares about rather than every key in the chart.",
+  "type": "object",
+  "required": ["replicaCount", "image", "resources", "platform"],
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "title": "Replica count",
+      "description": "Number of pod replicas. Production should run at least 2.",
+      "minimum": 1,
+      "maximum": 25,
+      "default": 2
+    },
+    "image": {
+      "type": "object",
+      "title": "Container image",
+      "required": ["repository", "tag"],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "title": "Repository",
+          "description": "Fully qualified image repository, registry included.",
+          "minLength": 3
+        },
+        "tag": {
+          "type": "string",
+          "title": "Tag",
+          "description": "An immutable tag. 'latest' is rejected by the platform golden path.",
+          "minLength": 1,
+          "not": { "const": "latest" }
+        },
+        "pullPolicy": {
+          "type": "string",
+          "title": "Pull policy",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "title": "Resource requests and limits",
+      "required": ["requests", "limits"],
+      "properties": {
+        "requests": {
+          "type": "object",
+          "title": "Requests",
+          "required": ["cpu", "memory"],
+          "properties": {
+            "cpu": {
+              "title": "CPU request",
+              "description": "A Kubernetes quantity such as 100m, 0.5 or \"1\".",
+              "type": ["string", "number"]
+            },
+            "memory": {
+              "title": "Memory request",
+              "description": "A Kubernetes quantity such as 128Mi or 1Gi.",
+              "type": ["string", "number"]
+            }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "title": "Limits",
+          "required": ["cpu", "memory"],
+          "properties": {
+            "cpu": {
+              "title": "CPU limit",
+              "description": "A Kubernetes quantity such as 500m or \"1\".",
+              "type": ["string", "number"]
+            },
+            "memory": {
+              "title": "Memory limit",
+              "description": "A Kubernetes quantity such as 512Mi or 1Gi.",
+              "type": ["string", "number"]
+            }
+          }
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "title": "Platform metadata",
+      "description": "Drives ChartPilot's profile selection and severity promotion.",
+      "required": ["team", "dataClassification", "exposure"],
+      "properties": {
+        "team": {
+          "type": "string",
+          "title": "Owning team",
+          "minLength": 2
+        },
+        "partOf": {
+          "type": "string",
+          "title": "Part of",
+          "description": "Value for the app.kubernetes.io/part-of label."
+        },
+        "dataClassification": {
+          "type": "string",
+          "title": "Data classification",
+          "enum": ["public", "internal", "confidential", "sensitive-personal-data"],
+          "default": "internal"
+        },
+        "exposure": {
+          "type": "string",
+          "title": "Exposure",
+          "enum": ["internal", "public"],
+          "default": "internal"
+        }
+      }
+    }
+  }
+}

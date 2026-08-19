@@ -1,0 +1,29 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: {{ .Values.istio.gateway.name }}
+  labels:
+    {{- include "member-api.labels" . | nindent 4 }}
+spec:
+  selector:
+    istio: {{ .Values.istio.gateway.selectorIstio }}
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - {{ .Values.istio.gateway.host | quote }}
+      tls:
+        mode: SIMPLE
+        credentialName: {{ .Values.istio.gateway.tlsSecretName }}
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - {{ .Values.istio.gateway.host | quote }}
+      tls:
+        httpsRedirect: true
+{{- end }}

@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: member-api-tls
+spec:
+  secretName: member-api-tls
+  duration: 8760h
+  dnsNames:
+    - member-api.example.com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+    group: cert-manager.io

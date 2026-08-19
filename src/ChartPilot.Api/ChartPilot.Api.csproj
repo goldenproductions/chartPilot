@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>ChartPilot.Api</RootNamespace>
+    <AssemblyName>ChartPilot.Api</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChartPilot.Core\ChartPilot.Core.csproj" />
+    <ProjectReference Include="..\ChartPilot.Helm\ChartPilot.Helm.csproj" />
+  </ItemGroup>
+
+</Project>

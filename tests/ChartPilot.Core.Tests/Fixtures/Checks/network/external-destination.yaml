@@ -1,0 +1,59 @@
+# A public route whose destination host is not a Service this chart renders, plus an
+# AuthorizationPolicy that selects something else entirely. The policy provably does not protect
+# the route, so "any policy exists" must not count as coverage.
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: public-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: member-api
+spec:
+  hosts:
+    - "member-api.example.com"
+  gateways:
+    - public-gateway
+  http:
+    - route:
+        - destination:
+            host: api.partner.example.com
+---
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: batch-only
+spec:
+  selector:
+    matchLabels:
+      app: batch-report
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/apps/sa/batch"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: batch-report
+spec:
+  template:
+    metadata:
+      labels:
+        app: batch-report
+    spec:
+      containers:
+        - name: batch
+          image: ghcr.io/example/batch:1.0.0

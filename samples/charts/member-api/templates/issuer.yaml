@@ -1,0 +1,11 @@
+{{- if and .Values.certificate.enabled .Values.certificate.issuer.create }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Values.certificate.issuer.name }}
+  labels:
+    {{- include "member-api.labels" . | nindent 4 }}
+spec:
+  ca:
+    secretName: {{ .Values.certificate.issuer.secretName }}
+{{- end }}

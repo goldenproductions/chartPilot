@@ -1,0 +1,49 @@
+# Production overlay — sensitive personal data, internal exposure only.
+
+replicaCount: 3
+
+image:
+  tag: "1.12.0"
+  pullPolicy: IfNotPresent
+
+platform:
+  team: member-platform
+  partOf: member-platform
+  dataClassification: sensitive-personal-data
+  exposure: internal
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+istio:
+  gateway:
+    host: member-api.internal.example.com
+  virtualService:
+    timeout: 3s
+    retries:
+      attempts: 3
+      perTryTimeout: 1s
+  destinationRule:
+    maxConnections: 200
+
+certificate:
+  duration: 720h
+  renewBefore: 240h
+  dnsNames:
+    - member-api.internal.example.com
+
+serviceMonitor:
+  interval: 15s
+
+env:
+  LOG_LEVEL: warning
+  ASPNETCORE_URLS: http://0.0.0.0:8080

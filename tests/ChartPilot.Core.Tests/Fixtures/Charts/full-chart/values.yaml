@@ -1,0 +1,11 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/example/fixture-api
+  tag: "3.1.0"
+
+hosts:
+  - fixture-api.example.com
+
+redis:
+  enabled: true

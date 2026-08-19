@@ -1,0 +1,23 @@
+{{- if and .Values.istio.enabled .Values.istio.destinationRule.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ include "member-api.fullname" . }}
+  labels:
+    {{- include "member-api.labels" . | nindent 4 }}
+spec:
+  host: {{ include "member-api.fullname" . }}
+  trafficPolicy:
+    tls:
+      mode: {{ .Values.istio.destinationRule.tlsMode }}
+    connectionPool:
+      tcp:
+        maxConnections: {{ .Values.istio.destinationRule.maxConnections }}
+      http:
+        http2MaxRequests: {{ .Values.istio.destinationRule.maxConnections }}
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 10s
+      baseEjectionTime: 30s
+{{- end }}

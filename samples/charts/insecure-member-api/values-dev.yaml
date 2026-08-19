@@ -1,0 +1,19 @@
+# Dev overlay - still non-compliant, and honest about it.
+
+replicaCount: 1
+
+image:
+  tag: latest
+
+resources: {}
+
+istio:
+  gateway:
+    hosts:
+      - "dev.member-api.example.com"
+
+certificate:
+  duration: 2160h
+
+platform:
+  exposure: internal

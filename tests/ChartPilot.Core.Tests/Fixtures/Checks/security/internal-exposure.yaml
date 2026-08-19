@@ -1,0 +1,41 @@
+# The same shape kept inside the perimeter: a ClusterIP Service, and a Gateway attached to the
+# internal ingress gateway rather than the public edge. Nothing here accepts traffic from outside.
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api
+spec:
+  type: ClusterIP
+  selector:
+    app: member-api
+  ports:
+    - port: 80
+---
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: internal-gateway
+spec:
+  selector:
+    istio: internal-ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - "member-api.internal.example.com"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: member-api
+spec:
+  hosts:
+    - "member-api.internal.example.com"
+  gateways:
+    - internal-gateway
+  http:
+    - route:
+        - destination:
+            host: member-api

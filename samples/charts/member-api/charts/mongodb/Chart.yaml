@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mongodb
+description: Vendored placeholder for the mongodb dependency so the sample renders offline.
+type: application
+version: 15.6.12
+appVersion: "7.0.12"

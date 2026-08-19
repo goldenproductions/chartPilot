@@ -1,0 +1,13 @@
+---
+# Source: member-api/templates/first.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: first
+---
+# Source: member-api/templates/second.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: second
+data: [unclosed

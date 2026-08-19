@@ -1,0 +1,86 @@
+---
+# Source: member-api/templates/gateway.yaml
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: public-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - members.acme.io
+---
+# Source: member-api/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api
+spec:
+  selector:
+    app: member-api
+  ports:
+    - port: 80
+---
+# Source: member-api/templates/service-tcp.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api-tcp
+spec:
+  selector:
+    app: member-api
+  ports:
+    - port: 5432
+---
+# Source: member-api/templates/service-tls.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: member-api-tls
+spec:
+  selector:
+    app: member-api
+  ports:
+    - port: 8443
+---
+# Source: member-api/templates/virtualservice.yaml
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: member-api
+spec:
+  hosts:
+    - members.acme.io
+  gateways:
+    - public-gateway
+    - mesh
+  http:
+    - route:
+        - destination:
+            host: member-api.member-prod.svc.cluster.local
+            port:
+              number: 80
+  tcp:
+    - route:
+        - destination:
+            host: member-api-tcp
+  tls:
+    - route:
+        - destination:
+            host: member-api-tls.member-prod
+---
+# Source: member-api/templates/destinationrule.yaml
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: member-api
+spec:
+  host: member-api.member-prod.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL

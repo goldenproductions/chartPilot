@@ -1,0 +1,144 @@
+# Default values for member-api.
+# Environment overlays live in values-dev.yaml, values-test.yaml and values-prod.yaml.
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/example/member-api
+  tag: "1.12.0"
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Platform metadata. ChartPilot reads these to pick a profile and to promote severities.
+platform:
+  team: member-platform
+  partOf: member-platform
+  dataClassification: internal
+  exposure: internal
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  privileged: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 10001
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  metricsPort: 8080
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  readiness:
+    path: /readyz
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  liveness:
+    path: /healthz
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+  ingressNamespaceLabel: istio-system
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  path: /metrics
+
+istio:
+  enabled: true
+  gateway:
+    name: member-api-gateway
+    selectorIstio: internal-ingressgateway
+    host: member-api.internal.example.com
+    tlsSecretName: member-api-tls
+  virtualService:
+    timeout: 5s
+    retries:
+      attempts: 2
+      perTryTimeout: 2s
+  destinationRule:
+    enabled: true
+    tlsMode: ISTIO_MUTUAL
+    maxConnections: 100
+  authorizationPolicy:
+    enabled: true
+    principals:
+      - cluster.local/ns/istio-system/sa/internal-ingressgateway
+  peerAuthentication:
+    enabled: true
+    mode: STRICT
+
+certificate:
+  enabled: true
+  secretName: member-api-tls
+  # 60 days, well under the 90-day ceiling the platform golden path asks for.
+  duration: 1440h
+  renewBefore: 360h
+  dnsNames:
+    - member-api.internal.example.com
+  issuer:
+    create: true
+    name: platform-internal-ca
+    kind: Issuer
+    secretName: platform-internal-ca-key-pair
+
+env:
+  LOG_LEVEL: info
+  LOG_FORMAT: json
+  ASPNETCORE_URLS: http://0.0.0.0:8080
+  # Request correlation: the trace id is what joins this service's logs to the ones either side of it.
+  OTEL_SERVICE_NAME: member-api
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector.observability:4317
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+redis:
+  enabled: true
+
+mongodb:
+  enabled: true

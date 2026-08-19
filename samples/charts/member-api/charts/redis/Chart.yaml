@@ -1,0 +1,6 @@
+apiVersion: v2
+name: redis
+description: Vendored placeholder for the redis dependency so the sample renders offline.
+type: application
+version: 19.6.4
+appVersion: "7.2.5"

@@ -1,0 +1,13 @@
+apiVersion: v2
+name: insecure-member-api
+description: A deliberately non-compliant chart used to demonstrate ChartPilot's platform checks. Do not copy this.
+type: application
+version: 0.1.0
+appVersion: "latest"
+maintainers:
+  - name: ChartPilot Samples
+dependencies:
+  - name: redis
+    version: "^18.0.0"
+    repository: "https://charts.example.com"
+    condition: redis.enabled

@@ -1,0 +1,22 @@
+# A container with a memory limit and no CPU limit. "Has resource limits" must not be true here:
+# nothing bounds this container's scheduler time.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      containers:
+        - name: member-api
+          image: ghcr.io/example/member-api:1.4.2
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi

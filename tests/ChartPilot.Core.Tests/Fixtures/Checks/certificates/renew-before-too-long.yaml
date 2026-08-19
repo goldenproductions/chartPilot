@@ -1,0 +1,40 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: member-api-tls
+spec:
+  secretName: member-api-tls
+  duration: 720h
+  renewBefore: 720h
+  issuerRef:
+    name: letsencrypt-prod
+    kind: Issuer
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: member-api
+spec:
+  tls:
+    - secretName: member-api-tls
+      hosts:
+        - member-api.example.com
+  rules:
+    - host: member-api.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: member-api
+                port:
+                  number: 80

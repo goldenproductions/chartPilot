@@ -1,0 +1,31 @@
+---
+# Source: member-api/crds/widgets.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: widgets.acme.io
+spec:
+  group: acme.io
+  names:
+    kind: Widget
+    plural: widgets
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+---
+# Source: member-api/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: member-api
+spec:
+  template:
+    metadata:
+      labels:
+        app: member-api
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/acme/member-api:1.4.2
