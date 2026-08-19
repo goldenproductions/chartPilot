@@ -18,12 +18,28 @@ ChartPilot is a local, web-based GUI for understanding, configuring and quality-
 8. Generate a GitHub Actions workflow
 9. Export a Markdown review report
 
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [`docs/chartpilot-spec.md`](docs/chartpilot-spec.md) | Full functional specification — all 13 features |
+| [`docs/architecture.md`](docs/architecture.md) | Process shape, solution layout, core pipeline, check engine, API, security posture |
+| [`docs/features.md`](docs/features.md) | Feature map and milestone delivery plan (M0–M5) |
+
 ## Status
 
-Design phase. Full specification: [`docs/chartpilot-spec.md`](docs/chartpilot-spec.md).
+Design phase — spec and architecture written, no code yet. Next up is **M0**, the walking skeleton.
 
 ## Intended stack
 
-- **Frontend**: React + Vite + Monaco Editor
+- **Frontend**: React + TypeScript + Vite + Monaco Editor
 - **Backend**: .NET Minimal API (runs `helm template` / `helm lint`, parses manifests, evaluates policies)
 - **Bonus**: a `chartpilot check` CLI for CI/CD
+
+## Requirements
+
+- .NET 10 SDK
+- Node.js 20+
+- `helm` on `PATH` (`winget install Helm.Helm`) — ChartPilot detects it at startup and tells you if it is missing
+
+ChartPilot never needs a kubeconfig and never contacts a cluster.
