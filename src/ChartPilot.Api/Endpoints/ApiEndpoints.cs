@@ -10,6 +10,7 @@ public static class ApiEndpoints
         var api = app.MapGroup(BasePath);
 
         api.MapEnvironmentEndpoints();
+        api.MapBrowseEndpoints();
         api.MapWorkspaceEndpoints();
         api.MapReviewEndpoints();
         api.MapCatalogEndpoints();

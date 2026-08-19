@@ -7,6 +7,7 @@ import type {
   ChartDto,
   CheckDto,
   DiffDto,
+  DirectoryListingDto,
   EnvironmentDto,
   ProfileDto,
   RenderDto,
@@ -20,6 +21,14 @@ import type {
 
 export function getEnvironment(signal?: AbortSignal): Promise<EnvironmentDto> {
   return request<EnvironmentDto>('/environment', { signal });
+}
+
+export function browseDirectory(
+  path: string | null,
+  signal?: AbortSignal,
+): Promise<DirectoryListingDto> {
+  const query = path ? `?path=${encodeURIComponent(path)}` : '';
+  return request<DirectoryListingDto>(`/browse${query}`, { signal });
 }
 
 export function openWorkspace(chartPath: string, signal?: AbortSignal): Promise<ChartDto> {

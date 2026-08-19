@@ -15,6 +15,7 @@ import type {
   ChartDto,
   CheckDto,
   DiffDto,
+  DirectoryListingDto,
   EnvironmentDto,
   ProfileDto,
   ReviewDto,
@@ -30,9 +31,27 @@ export const queryKeys = {
     ['workspace', workspaceId, 'values', file ?? '(draft)'] as const,
   review: (workspaceId: string, environment: string, profileId: string, draft: string) =>
     ['workspace', workspaceId, 'review', environment, profileId, draft] as const,
+  browse: (path: string | null) => ['browse', path ?? '(root)'] as const,
   diff: (workspaceId: string, differencesOnly: boolean) =>
     ['workspace', workspaceId, 'diff', differencesOnly] as const,
 };
+
+/**
+ * The chart browser's directory listing. Disabled until the browser is opened, and it keeps the
+ * previous listing while the next one loads so the list does not blank out on every hop.
+ */
+export function useDirectoryListing(
+  path: string | null,
+  enabled: boolean,
+): UseQueryResult<DirectoryListingDto> {
+  return useQuery({
+    queryKey: queryKeys.browse(path),
+    queryFn: ({ signal }) => api.browseDirectory(path, signal),
+    enabled,
+    placeholderData: keepPreviousData,
+    staleTime: 5_000,
+  });
+}
 
 export function useEnvironment(): UseQueryResult<EnvironmentDto> {
   return useQuery({

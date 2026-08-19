@@ -269,6 +269,7 @@ Minimal API under `/api/v1`. A **workspace** is an in-memory session (chart path
 | Method | Route | Purpose |
 |---|---|---|
 | `GET` | `/environment` | helm path/version, availability, allowlist root |
+| `GET` | `/browse` | list subdirectories under the allowlist root, flagging which are charts |
 | `POST` | `/workspaces` | open a chart directory → workspace id + `ChartModel` |
 | `GET` | `/workspaces/{id}` | chart overview |
 | `GET` | `/workspaces/{id}/values` | a values file, or the current draft |
@@ -281,6 +282,14 @@ Minimal API under `/api/v1`. A **workspace** is an in-memory session (chart path
 | `POST` | `/workspaces/{id}/workflow` | generated GitHub Actions YAML |
 | `GET` | `/profiles` | available golden path profiles |
 | `GET` | `/checks` | the rule catalog (id, title, category, rationale) |
+
+`GET /browse` backs the GUI's folder picker. A browser cannot hand a server an absolute path —
+neither a file input nor the File System Access API exposes one — so the tree is walked server
+side instead. Every listing is confined to the allowlist root, checked *before* existence so a
+traversal attempt cannot be distinguished from a missing directory by probing, and hidden, system
+and reparse-point directories are skipped. Paths come back relative to the root with forward
+slashes, so whatever the browser returns can be posted straight to `POST /workspaces` with no
+client-side path assembly.
 
 Render and review are POSTs because they execute a process. Errors use `ProblemDetails`, with Helm's stderr in an extension member so the editor can point at the offending template line.
 

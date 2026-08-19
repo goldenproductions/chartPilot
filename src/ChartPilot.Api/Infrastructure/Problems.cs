@@ -78,6 +78,13 @@ public static class Problems
             statusCode: StatusCodes.Status400BadRequest,
             type: "https://chartpilot.local/problems/not-a-chart");
 
+    public static IResult DirectoryNotFound(string path)
+        => Results.Problem(
+            title: "Directory not found",
+            detail: $"'{path}' does not exist.",
+            statusCode: StatusCodes.Status404NotFound,
+            type: "https://chartpilot.local/problems/directory-not-found");
+
     public static IResult UnknownEndpoint()
         => Results.Problem(
             title: "Unknown endpoint",

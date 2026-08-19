@@ -151,3 +151,23 @@ public sealed record CheckDto(
     string Rationale,
     string Remediation,
     string? DocsUrl);
+
+/// <summary>One subdirectory in the chart browser, and whether it is itself a chart.</summary>
+public sealed record DirectoryEntryDto(string Name, string Path, bool IsChart);
+
+/// <summary>One breadcrumb hop. <see cref="Path"/> is empty for the allowlist root.</summary>
+public sealed record DirectorySegmentDto(string Name, string Path);
+
+/// <summary>
+/// What GET /api/v1/browse returns. Paths are relative to the allowlist root with forward
+/// slashes, so the GUI can post one straight to POST /workspaces.
+/// </summary>
+public sealed record DirectoryListingDto(
+    string Path,
+    string AbsolutePath,
+    string AllowlistRoot,
+    string? ParentPath,
+    bool IsAllowlistRoot,
+    bool IsChart,
+    IReadOnlyList<DirectorySegmentDto> Segments,
+    IReadOnlyList<DirectoryEntryDto> Entries);

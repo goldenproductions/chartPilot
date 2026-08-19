@@ -294,3 +294,26 @@ export interface WorkflowRequest {
 export function resourceKey(resource: { kind: string; name: string }): string {
   return `${resource.kind}/${resource.name}`;
 }
+
+export interface DirectoryEntryDto {
+  name: string;
+  path: string;
+  isChart: boolean;
+}
+
+export interface DirectorySegmentDto {
+  name: string;
+  path: string;
+}
+
+/** GET /browse — paths are relative to the allowlist root, ready to post to /workspaces. */
+export interface DirectoryListingDto {
+  path: string;
+  absolutePath: string;
+  allowlistRoot: string;
+  parentPath?: string | null;
+  isAllowlistRoot: boolean;
+  isChart: boolean;
+  segments: DirectorySegmentDto[];
+  entries: DirectoryEntryDto[];
+}
