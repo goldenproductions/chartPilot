@@ -93,6 +93,28 @@ export function YamlEditor(props: YamlEditorProps) {
     applyReveal();
   };
 
+  /**
+   * Monaco swaps its model when `path` changes, and that swap raises a content-change event
+   * carrying the *new* document. Without this guard the event is indistinguishable from the user
+   * typing, so switching from the values view to the rendered manifest published the whole
+   * manifest as an edit to values.yaml — silently replacing the user's values with Kubernetes YAML.
+   *
+   * A change is only an edit if it belongs to the document this editor was asked to show.
+   */
+  const handleChange = (next: string | undefined) => {
+    if (readOnly || !onChange) {
+      return;
+    }
+
+    const model = editorRef.current?.getModel();
+
+    if (model && model.uri.toString() !== path) {
+      return;
+    }
+
+    onChange(next ?? '');
+  };
+
   // The nonce makes a repeated click on the same finding re-scroll the editor.
   useEffect(() => {
     applyReveal();
@@ -105,7 +127,7 @@ export function YamlEditor(props: YamlEditorProps) {
       language={language}
       theme={monacoThemeFor(prefersDark)}
       onMount={handleMount}
-      onChange={(next) => onChange?.(next ?? '')}
+      onChange={handleChange}
       loading={<div className="empty">Loading editor&hellip;</div>}
       options={{
         readOnly,
