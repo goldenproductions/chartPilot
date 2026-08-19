@@ -649,6 +649,47 @@ dotnet run --project src/ChartPilot.Api</code></pre>
           <li><strong>The YAML path</strong> it applies to.</li>
         </ol>
 
+        <h3>When you do not understand a finding</h3>
+
+        <p>Click <strong>What should I do?</strong> on any finding.</p>
+
+        <figure>
+          <img src="images/12-guidance.jpg" alt="A finding expanded to show a plain-language explanation, the reason for its severity, and numbered options each with YAML and a trade-off">
+          <figcaption>The same finding, expanded. Plain language first, then why it carries this severity for <em>this</em> review, then the ways out.</figcaption>
+        </figure>
+
+        <ul>
+          <li>
+            <strong>What this means</strong> — the finding restated without jargon, for a reader who
+            has not met this rule before.
+          </li>
+          <li>
+            <strong>Why this severity</strong> — when the profile or the data classification raised
+            it, the exact sentence saying so: <em>"Raised from Warning to Critical because the
+            'Sensitive member data service' profile makes this a mandatory requirement."</em>
+          </li>
+          <li>
+            <strong>Your options</strong> — two to four concrete ways out, each with its YAML and,
+            importantly, its <em>trade-off</em>. One is marked <em>recommended</em> so there is always
+            somewhere to start, and the last is often an honest waiver with an expiry date, because
+            deciding to accept a risk is a real answer.
+          </li>
+        </ul>
+
+        <div class="note">
+          <p>
+            All of it ships with ChartPilot — no model call, no network, no API key. The CLI prints
+            the same guidance under <code>--explain</code>, and the Markdown report carries the
+            options for every critical finding, so a pull-request reviewer sees the same choices you
+            did.
+          </p>
+          <p>
+            The advice is written in Kubernetes terms, which are the same in every chart. It cannot
+            know <em>where</em> your particular chart exposes a setting, so on a hand-rolled chart you
+            translate the last step into your own values keys.
+          </p>
+        </div>
+
         <div class="table-wrap">
           <table>
             <thead>

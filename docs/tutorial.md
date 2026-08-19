@@ -107,7 +107,11 @@ Each finding carries four things:
 
 ### When you do not understand a finding
 
-Click **What should I do?** on any finding. It expands into:
+Click **What should I do?** on any finding.
+
+![A finding expanded to show a plain-language explanation, the reason for its severity, and numbered options each with YAML and a trade-off](images/12-guidance.jpg)
+
+It expands into:
 
 - **What this means** — the finding restated without jargon, for a reader who has not met this rule
   before.
