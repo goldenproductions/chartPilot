@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest something ChartPilot should do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that ChartPilot makes hard or impossible today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you have in mind
+  - type: markdown
+    attributes:
+      value: |
+        Please check `docs/features.md` first — the scope guards there list things that are
+        deliberately out of scope (cluster connectivity, chart repositories, auto-editing your
+        values). A proposal that crosses one of those is still welcome, but say why the trade-off
+        should change.

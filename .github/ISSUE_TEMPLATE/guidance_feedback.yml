@@ -1,0 +1,34 @@
+name: The advice on a finding is wrong or unhelpful
+description: The "What should I do?" guidance for a rule is inaccurate, incomplete or misleading
+labels: [guidance]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please read this first: the per-rule guidance in `src/ChartPilot.Core/Checks/Guidance/` was
+        written with an LLM and has **not** been reviewed by a domain expert. Corrections from
+        people who run this in production are exactly what it needs.
+
+  - type: input
+    id: check-id
+    attributes:
+      label: Rule id
+      placeholder: CP-NET-002
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong with the advice
+      description: Quote the sentence or the option that is wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: better
+    attributes:
+      label: What it should say
+      description: >
+        If you can, give the option as it should read: title, what it does, the YAML, and the
+        trade-off. An option without a stated trade-off is an instruction, not a choice.

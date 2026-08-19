@@ -13,11 +13,11 @@ The full functional description is in [`chartpilot-spec.md`](chartpilot-spec.md)
 | M2 — The check engine | **Done** | 51 rules across six families. |
 | M3 — Profiles and governance | **Done** | 7 built-in profiles, classification promotion, suppressions with expiry. |
 | M4 — Making it travel | **Done** | Diff, Markdown report, workflow generator, values export. |
-| M5 — CLI, CI and polish | **Partial** | CLI and CI are built; see below. |
+| M5 — CLI, CI and polish | **Partial** | CLI and CI are built and CI is green on every push; see below. |
 
 Verified on Windows 11, .NET SDK 10.0.300, Node 24.8.0, Helm v4.2.4:
-`dotnet build` succeeded with 0 warnings and 0 errors; `dotnet test` reported **453 passed, 0 failed,
-0 skipped** (Core 356, Helm 66, Api 31); `npm run build` in `src/chartpilot-web` succeeded.
+`dotnet build` succeeded with 0 warnings and 0 errors; `dotnet test` reported **472 passed, 0 failed,
+0 skipped** (Core 363, Helm 66, Api 43); `npm run build` in `src/chartpilot-web` succeeded.
 
 ### What remains in M1
 
@@ -29,9 +29,9 @@ Verified on Windows 11, .NET SDK 10.0.300, Node 24.8.0, Helm v4.2.4:
 
 ### What remains in M5
 
-- **The CI workflow has never run.** `.github/workflows/ci.yml` is written and gates on ChartPilot's
-  own output (reference chart must pass, the two bad sample charts must exit 1), and all of its steps
-  have been run by hand locally, but the workflow itself has not yet executed on GitHub Actions.
+- ~~The CI workflow has never run.~~ **Resolved 2026-08-19.** `.github/workflows/ci.yml` has run on
+  every push since it landed and is green; it gates on ChartPilot's own output (the reference chart
+  must stay clean, the two bad sample charts must exit 1).
 - **No README demo GIF.**
 - **No frontend test suite.** `chartpilot-web` has no vitest/Playwright tests; its correctness is
   covered only by `tsc --noEmit` and by the API contract tests behind it.

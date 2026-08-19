@@ -1,0 +1,55 @@
+name: Bug report
+description: Something behaves differently from how it is documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. The most useful bug reports say what you ran, what happened, and
+        what you expected instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you observe? Paste real output rather than describing it.
+      placeholder: |
+        $ dotnet run --project src/ChartPilot.Cli -- check ./my-chart
+        ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: chart
+    attributes:
+      label: The chart, if you can share it
+      description: >
+        A minimal chart that reproduces it is the single most useful thing you can attach. If the
+        chart is private, the rendered manifest of the affected resource usually works just as well.
+
+  - type: input
+    id: version
+    attributes:
+      label: ChartPilot commit
+      description: The output of `git rev-parse --short HEAD`, or the version from GET /api/v1/environment.
+
+  - type: input
+    id: helm
+    attributes:
+      label: Helm version
+      description: The output of `helm version --short`.
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did you hit it
+      options: [Web UI, CLI, API, CI]
+    validations:
+      required: true

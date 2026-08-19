@@ -1,0 +1,45 @@
+name: A check is wrong
+description: A rule fired when it should not have, or stayed silent when it should have fired
+labels: [check-accuracy]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        These are the most valuable reports this project gets. A rule that fires wrongly trains
+        people to ignore findings; a rule that stays silent gives false confidence.
+
+  - type: input
+    id: check-id
+    attributes:
+      label: Rule id
+      placeholder: CP-SEC-004
+    validations:
+      required: true
+
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Which way is it wrong
+      options:
+        - It fired, but the chart is fine (false positive)
+        - It stayed silent, but the chart has this problem (false negative)
+        - It fired for the right reason but says the wrong thing
+    validations:
+      required: true
+
+  - type: textarea
+    id: manifest
+    attributes:
+      label: The rendered resource
+      description: The YAML the rule was evaluating. `helm template` output for the affected resource is ideal.
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why the current behaviour is wrong
+      description: What should it have concluded, and what makes that the right answer?
+    validations:
+      required: true
