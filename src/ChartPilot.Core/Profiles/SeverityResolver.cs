@@ -62,20 +62,41 @@ public sealed class SeverityResolver : ISeverityResolver
     };
 
     public Severity Resolve(CheckDescriptor descriptor, Profile profile, DataClassification classification)
+        => Explain(descriptor, profile, classification).Severity;
+
+    /// <summary>
+    /// The same walk as <see cref="Resolve"/>, recording which step moved the severity. The two
+    /// share one implementation so the explanation cannot drift away from the decision.
+    /// </summary>
+    public SeverityDecision Explain(CheckDescriptor descriptor, Profile profile, DataClassification classification)
     {
         ArgumentNullException.ThrowIfNull(descriptor);
         ArgumentNullException.ThrowIfNull(profile);
 
         var severity = descriptor.DefaultSeverity;
+        string? reason = null;
 
         // 1. Profile requirements promote a check to mandatory.
         if (IsMandatedBy(profile.Requirements, descriptor.Id))
         {
+            if (severity != Severity.Critical)
+            {
+                reason = $"Raised from {descriptor.DefaultSeverity} to Critical because the '{profile.Name}' "
+                       + "profile makes this a mandatory requirement.";
+            }
+
             severity = Severity.Critical;
         }
 
         // 2. Data classification promotes on top of that.
-        severity = PromoteForClassification(severity, descriptor.Id, classification);
+        var afterClassification = PromoteForClassification(severity, descriptor.Id, classification);
+
+        if (afterClassification != severity)
+        {
+            reason = $"Raised from {severity} to {afterClassification} because this chart declares "
+                   + $"dataClassification: {Describe(classification)}.";
+            severity = afterClassification;
+        }
 
         // 3. An explicit override wins outright, in either direction.
         if (profile.SeverityOverrides is { } overrides && overrides.Count > 0)
@@ -84,13 +105,28 @@ public sealed class SeverityResolver : ISeverityResolver
             {
                 if (string.Equals(entry.Key, descriptor.Id, StringComparison.OrdinalIgnoreCase))
                 {
-                    return entry.Value;
+                    return new SeverityDecision(
+                        entry.Value,
+                        entry.Value == descriptor.DefaultSeverity
+                            ? null
+                            : $"Set to {entry.Value} by an explicit override in the '{profile.Name}' profile, "
+                              + $"which replaces the rule's default of {descriptor.DefaultSeverity}.");
                 }
             }
         }
 
-        return severity;
+        return new SeverityDecision(severity, reason);
     }
+
+    /// <summary>The classification as it is written in values, so the sentence matches the file.</summary>
+    private static string Describe(DataClassification classification) => classification switch
+    {
+        DataClassification.SensitivePersonalData => "sensitive-personal-data",
+        DataClassification.Confidential => "confidential",
+        DataClassification.Internal => "internal",
+        DataClassification.Public => "public",
+        _ => classification.ToString()
+    };
 
     /// <summary>True when the profile makes this check's subject a mandatory requirement.</summary>
     public static bool IsMandatedBy(ProfileRequirements requirements, string checkId)

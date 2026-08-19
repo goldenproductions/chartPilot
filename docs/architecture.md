@@ -193,6 +193,44 @@ DefaultSeverity
 
 This is the design decision that makes golden path profiles cheap: a profile is data, not code. `sandbox-service` and `sensitive-member-data-service` run the *same* catalog and differ only in what they promote.
 
+### 5.4 Guidance: what the reader should do about it
+
+A finding that a reader cannot act on is noise. Alongside the rule catalog there is an authored
+**guidance catalog** (`Checks/Guidance/`), keyed by check id:
+
+```csharp
+record CheckGuidance(string WhatItMeans, IReadOnlyList<FixOption> Options);
+
+record FixOption(
+    string Title,        // "Lock it down"
+    string Summary,      // what this option does
+    string Yaml,         // paste-ready
+    string Tradeoff,     // when to pick it, and what it costs
+    bool IsRecommended);
+```
+
+Three deliberate choices:
+
+- **Authored, not generated.** The text ships with the binary. No API key, no network, no variation
+  between runs — the GUI, the CLI (`--explain`) and the Markdown report all render the same words,
+  and CI behaves identically to a laptop. That is the same constraint as the rest of the tool.
+- **Every option states a trade-off.** An option with no stated cost is an instruction, not a
+  choice; a reader cannot decide between two things when only one admits a downside. A test enforces
+  the field is non-empty.
+- **Prose lives apart from logic.** Rules change when Kubernetes changes; guidance changes when our
+  advice changes. Keeping them in separate files means the prose can be reviewed as prose.
+
+`GuidanceCatalogTests` fails the build when a registered check has no guidance, when guidance exists
+for a check id that no longer exists, when a check does not mark exactly one option as recommended,
+or when an option is missing its YAML or its trade-off. That is what stops the catalog rotting as
+rules are added.
+
+Separately, `ISeverityResolver.Explain` returns the resolved severity **and the sentence that
+explains it** — "Raised from Warning to Critical because the 'Sensitive member data service' profile
+makes this a mandatory requirement." It is derived from the same table that made the decision rather
+than authored, so it cannot drift, and it answers the question the promotion model provokes most
+often. `Resolve` is now a thin wrapper over `Explain` so the two cannot disagree.
+
 ### 5.4 Suppressions
 
 An optional `.chartpilot.yaml` next to the chart:

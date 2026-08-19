@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using ChartPilot.Core.Checks;
+using ChartPilot.Core.Checks.Guidance;
 using ChartPilot.Core.Manifests;
 using ChartPilot.Core.Profiles;
 using ChartPilot.Core.Review;
@@ -58,6 +59,7 @@ public sealed class MarkdownReportWriter : IReportWriter
         WritePassed(sb, result);
         WriteSuppressed(sb, result);
         WriteRecommendedActions(sb, result);
+        WriteGuidanceAppendix(sb, result);
 
         return sb.ToString();
     }
@@ -272,6 +274,59 @@ public sealed class MarkdownReportWriter : IReportWriter
             else
             {
                 sb.Append(number).Append(". ").Append(actions[i]).Append(Nl);
+            }
+        }
+    }
+
+    /// <summary>
+    /// The options behind each critical finding, so a reviewer reading the report in a pull request
+    /// has the same choices the GUI offers rather than a single take-it-or-leave-it snippet.
+    /// Criticals only: including every warning would bury the report in prose.
+    /// </summary>
+    private static void WriteGuidanceAppendix(StringBuilder sb, ReviewResult result)
+    {
+        var critical = Ordered(result.Findings.Where(f => f.Severity == Severity.Critical))
+            .GroupBy(f => f.CheckId, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+
+        if (critical.Count == 0)
+        {
+            return;
+        }
+
+        sb.Append(Nl).Append("## Your options for each critical finding").Append(Nl);
+
+        foreach (var finding in critical)
+        {
+            var guidance = GuidanceCatalog.For(finding.CheckId);
+
+            if (guidance is null)
+            {
+                continue;
+            }
+
+            sb.Append(Nl).Append("### ").Append(finding.CheckId).Append(Nl).Append(Nl);
+            sb.Append(OneLine(guidance.WhatItMeans)).Append(Nl);
+
+            if (!string.IsNullOrWhiteSpace(finding.SeverityReason))
+            {
+                sb.Append(Nl).Append("> ").Append(OneLine(finding.SeverityReason!)).Append(Nl);
+            }
+
+            var number = 1;
+
+            foreach (var option in guidance.Options)
+            {
+                var recommended = option.IsRecommended ? " _(recommended)_" : string.Empty;
+
+                sb.Append(Nl)
+                  .Append(number.ToString(CultureInfo.InvariantCulture))
+                  .Append(". **").Append(option.Title).Append("**").Append(recommended).Append(Nl).Append(Nl);
+                sb.Append("   ").Append(OneLine(option.Summary)).Append(Nl);
+                WriteFencedYaml(sb, option.Yaml, "   ");
+                sb.Append("   ").Append(OneLine(option.Tradeoff)).Append(Nl);
+                number++;
             }
         }
     }

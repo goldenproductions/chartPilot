@@ -95,7 +95,22 @@ public interface IProfileStore
 public interface ISeverityResolver
 {
     Severity Resolve(CheckDescriptor descriptor, Profile profile, DataClassification classification);
+
+    /// <summary>
+    /// The resolved severity plus the sentence that explains it. "Why is this Critical for me and
+    /// only a warning for my colleague?" is the question the promotion model most often provokes,
+    /// and it is answerable from the same table that decided it.
+    /// </summary>
+    SeverityDecision Explain(CheckDescriptor descriptor, Profile profile, DataClassification classification);
 }
+
+/// <summary>A resolved severity and the reason it ended up there.</summary>
+/// <param name="Severity">The severity the finding is reported at.</param>
+/// <param name="Reason">
+/// Why it differs from the rule's default, or null when the default was kept — a finding that was
+/// never promoted needs no explanation beyond the rule itself.
+/// </param>
+public sealed record SeverityDecision(Severity Severity, string? Reason);
 
 /// <summary>Reads the optional .chartpilot.yaml suppression file next to a chart.</summary>
 public interface ISuppressionLoader

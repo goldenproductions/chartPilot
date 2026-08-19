@@ -76,7 +76,7 @@ internal static class CheckCommand
         }
         else
         {
-            ConsoleReport.Write(output, result, reportWritten: options.ReportPath is not null);
+            ConsoleReport.Write(output, result, reportWritten: options.ReportPath is not null, explain: options.Explain);
         }
 
         return Gate(result, options.FailOn);

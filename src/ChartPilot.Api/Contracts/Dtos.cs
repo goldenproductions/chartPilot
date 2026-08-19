@@ -64,6 +64,14 @@ public sealed record ResourceDto(
     string Yaml);
 
 /// <summary>A finding, enriched with the catalog title and category so the GUI need not join.</summary>
+/// <summary>One way out of a finding, with the trade-off stated so the reader can choose.</summary>
+public sealed record FixOptionDto(
+    string Title,
+    string Summary,
+    string Yaml,
+    string Tradeoff,
+    bool IsRecommended);
+
 public sealed record FindingDto(
     string CheckId,
     string? Title,
@@ -75,7 +83,15 @@ public sealed record FindingDto(
     string Message,
     string Remediation,
     string? YamlPath,
-    string? SourceTemplate);
+    string? SourceTemplate,
+    /// <summary>Why the rule exists at all, from the catalog.</summary>
+    string? Rationale,
+    /// <summary>The finding restated without jargon.</summary>
+    string? WhatItMeans,
+    /// <summary>Why this severity, when the profile or classification moved it. Null if it did not.</summary>
+    string? SeverityReason,
+    /// <summary>Two to four ways to resolve it, most-recommended first.</summary>
+    IReadOnlyList<FixOptionDto> Options);
 
 public sealed record PassedCheckDto(string CheckId, string Title, CheckCategory Category, string? Resource);
 

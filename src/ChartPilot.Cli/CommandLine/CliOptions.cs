@@ -33,7 +33,9 @@ internal sealed record CliOptions(
     string? ReportPath,
     string? WorkflowPath,
     Severity? FailOn,
-    bool Json);
+    bool Json,
+    /// <summary>Print what each finding means and the options for fixing it.</summary>
+    bool Explain);
 
 /// <summary>Either a parsed command line or the reason it could not be parsed.</summary>
 internal sealed record ParseResult(CliOptions? Options, string? Error)

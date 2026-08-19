@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   SEVERITY_ORDER,
   type CheckDto,
   type FindingDto,
+  type FixOptionDto,
   type PassedCheckDto,
   type Severity,
   type SuppressedFindingDto,
@@ -40,6 +41,19 @@ function matchesQuery(finding: FindingDto, query: string): boolean {
 
 /** Features 5 and 6 — the findings list, grouped by severity and navigable. */
 export function FindingsPanel(props: FindingsPanelProps) {
+  // Which findings have their guidance open. Keyed per finding rather than per rule, because the
+  // same rule can fire on several resources and they are read one at a time.
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
+
+  const toggleExplain = (key: string) =>
+    setExpanded((current) => {
+      const next = new Set(current);
+      if (!next.delete(key)) {
+        next.add(key);
+      }
+      return next;
+    });
+
   const {
     findings,
     passed,
@@ -160,40 +174,58 @@ export function FindingsPanel(props: FindingsPanelProps) {
               <div className="finding-group-title">
                 {severity} ({items.length})
               </div>
-              {items.map((finding, index) => (
-                <button
-                  key={`${finding.checkId}:${finding.resource ?? 'chart'}:${index}`}
-                  type="button"
-                  role="listitem"
-                  data-nav-item=""
-                  className={`finding sev-${finding.severity}`}
-                  onClick={() => onSelectFinding(finding)}
-                  title={
-                    finding.resource
-                      ? `Go to ${finding.resource}${
-                          finding.yamlPath ? ` — ${finding.yamlPath}` : ''
-                        }`
-                      : 'Chart-level finding'
-                  }
-                >
-                  <span className="finding-head">
-                    <span className="finding-id">{finding.checkId}</span>
-                    <span style={{ fontWeight: 600 }}>
-                      {finding.title ?? titleById.get(finding.checkId) ?? ''}
-                    </span>
-                    {finding.resource ? (
-                      <span className="finding-resource">{finding.resource}</span>
-                    ) : (
-                      <span className="finding-resource">chart</span>
-                    )}
-                  </span>
-                  <span className="finding-message">{finding.message}</span>
-                  <span className="finding-remediation">{finding.remediation}</span>
-                  {finding.yamlPath ? (
-                    <span className="finding-path">{finding.yamlPath}</span>
-                  ) : null}
-                </button>
-              ))}
+              {items.map((finding, index) => {
+                const key = `${finding.checkId}:${finding.resource ?? 'chart'}:${index}`;
+                const canExplain = Boolean(finding.whatItMeans) || (finding.options?.length ?? 0) > 0;
+                const isOpen = expanded.has(key);
+
+                return (
+                  <div key={key} role="listitem" className="finding-row">
+                    <button
+                      type="button"
+                      data-nav-item=""
+                      className={`finding sev-${finding.severity}`}
+                      onClick={() => onSelectFinding(finding)}
+                      title={
+                        finding.resource
+                          ? `Go to ${finding.resource}${
+                              finding.yamlPath ? ` — ${finding.yamlPath}` : ''
+                            }`
+                          : 'Chart-level finding'
+                      }
+                    >
+                      <span className="finding-head">
+                        <span className="finding-id">{finding.checkId}</span>
+                        <span style={{ fontWeight: 600 }}>
+                          {finding.title ?? titleById.get(finding.checkId) ?? ''}
+                        </span>
+                        {finding.resource ? (
+                          <span className="finding-resource">{finding.resource}</span>
+                        ) : (
+                          <span className="finding-resource">chart</span>
+                        )}
+                      </span>
+                      <span className="finding-message">{finding.message}</span>
+                      {finding.yamlPath ? (
+                        <span className="finding-path">{finding.yamlPath}</span>
+                      ) : null}
+                    </button>
+
+                    {canExplain ? (
+                      <button
+                        type="button"
+                        className="finding-explain-toggle"
+                        aria-expanded={isOpen}
+                        onClick={() => toggleExplain(key)}
+                      >
+                        {isOpen ? 'Hide guidance' : 'What should I do?'}
+                      </button>
+                    ) : null}
+
+                    {isOpen ? <FindingGuidance finding={finding} /> : null}
+                  </div>
+                );
+              })}
             </div>
           );
         })}
@@ -234,5 +266,53 @@ export function FindingsPanel(props: FindingsPanelProps) {
         ) : null}
       </div>
     </div>
+  );
+}
+
+/**
+ * The "what should I do?" body: the finding in plain language, why it carries this severity for
+ * this review, and the authored options. The remediation snippet the finding already carried is
+ * the recommended option's yaml, so it is not repeated above.
+ */
+function FindingGuidance({ finding }: { finding: FindingDto }) {
+  const options = finding.options ?? [];
+
+  return (
+    <div className="finding-guidance">
+      {finding.whatItMeans ? <p className="fg-means">{finding.whatItMeans}</p> : null}
+
+      {finding.severityReason ? (
+        <p className="fg-severity">{finding.severityReason}</p>
+      ) : null}
+
+      {options.length > 0 ? (
+        <>
+          <div className="fg-options-title">Your options</div>
+          <ol className="fg-options">
+            {options.map((option) => (
+              <FindingOption key={option.title} option={option} />
+            ))}
+          </ol>
+        </>
+      ) : (
+        <pre className="fg-yaml">{finding.remediation}</pre>
+      )}
+
+      {finding.rationale ? <p className="fg-rationale">{finding.rationale}</p> : null}
+    </div>
+  );
+}
+
+function FindingOption({ option }: { option: FixOptionDto }) {
+  return (
+    <li className={option.isRecommended ? 'fg-option is-recommended' : 'fg-option'}>
+      <div className="fg-option-head">
+        <span className="fg-option-title">{option.title}</span>
+        {option.isRecommended ? <span className="fg-badge">recommended</span> : null}
+      </div>
+      <p className="fg-option-summary">{option.summary}</p>
+      <pre className="fg-yaml">{option.yaml}</pre>
+      <p className="fg-option-tradeoff">{option.tradeoff}</p>
+    </li>
   );
 }

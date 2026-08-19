@@ -105,6 +105,24 @@ Each finding carries four things:
 3. **A remediation snippet** you can paste — the actual YAML that fixes it.
 4. **The YAML path** it applies to.
 
+### When you do not understand a finding
+
+Click **What should I do?** on any finding. It expands into:
+
+- **What this means** — the finding restated without jargon, for a reader who has not met this rule
+  before.
+- **Why this severity** — when the profile or the data classification raised it, the exact sentence
+  saying so: *"Raised from Warning to Critical because the 'Sensitive member data service' profile
+  makes this a mandatory requirement."*
+- **Your options** — two to four concrete ways out, each with the YAML and, importantly, its
+  trade-off. One is marked *recommended* so there is always somewhere to start. The last option is
+  often an honest waiver with an expiry date, because "accept this risk deliberately" is a real
+  answer.
+
+All of it ships with ChartPilot: no model, no network, no API key. The CLI prints the same guidance
+with `--explain`, and the Markdown report carries the options for every critical finding, so a
+reviewer reading a pull request sees the same choices you did.
+
 The rule id families are `CP-SEC` (security), `CP-REL` (reliability), `CP-NET` (Istio and network),
 `CP-CERT` (cert-manager), `CP-OBS` (observability) and `CP-GOV` (governance).
 

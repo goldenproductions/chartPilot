@@ -138,6 +138,22 @@ export interface FindingDto {
   remediation: string;
   yamlPath?: string | null;
   sourceTemplate?: string | null;
+  /** Why the rule exists at all. */
+  rationale?: string | null;
+  /** The finding restated without jargon. */
+  whatItMeans?: string | null;
+  /** Why this severity, when the profile or classification moved it. */
+  severityReason?: string | null;
+  /** Ways to resolve it, most-recommended first. */
+  options?: FixOptionDto[];
+}
+
+export interface FixOptionDto {
+  title: string;
+  summary: string;
+  yaml: string;
+  tradeoff: string;
+  isRecommended: boolean;
 }
 
 export interface PassedCheckDto {

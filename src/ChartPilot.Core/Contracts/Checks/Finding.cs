@@ -13,7 +13,12 @@ public sealed record Finding(
     string Message,
     string Remediation,
     string? YamlPath = null,
-    string? SourceTemplate = null);
+    string? SourceTemplate = null,
+    /// <summary>
+    /// Why this finding carries the severity it does, when the profile or the data classification
+    /// moved it. Null when the rule's own default was kept. Set by the engine, not by rules.
+    /// </summary>
+    string? SeverityReason = null);
 
 /// <summary>A check that ran and found nothing wrong. Passed checks are shown, and they count towards the score.</summary>
 public sealed record PassedCheck(string CheckId, string Title, CheckCategory Category, ResourceRef? Resource = null);

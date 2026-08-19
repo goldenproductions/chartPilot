@@ -13,6 +13,7 @@ ChartPilot is a local, web-based GUI for understanding, configuring and quality-
 3. Render manifests live with `helm template`
 4. Explore the generated Kubernetes resources in a tree
 5. Run platform readiness checks (reliability, security, Istio, cert-manager, observability)
+   — every finding explains itself in plain language and offers concrete options to choose from
 6. Get a platform score per category
 7. Compare values across dev/test/prod
 8. Generate a GitHub Actions workflow

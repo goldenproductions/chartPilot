@@ -1042,3 +1042,147 @@ input[type="text"] {
   background: var(--bg-active);
   box-shadow: inset 2px 0 0 var(--accent);
 }
+
+/* ---- Finding guidance: "what should I do?" ---- */
+
+.finding-row {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--border);
+}
+
+.finding-row .finding {
+  border-bottom: none;
+}
+
+.finding-explain-toggle {
+  align-self: flex-start;
+  margin: 0 0 6px 10px;
+  padding: 1px 7px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+
+.finding-explain-toggle:hover {
+  background: var(--bg-hover);
+}
+
+.finding-explain-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.finding-guidance {
+  padding: 8px 10px 12px;
+  background: var(--bg-raised);
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.finding-guidance p {
+  margin: 0 0 8px;
+}
+
+.fg-means {
+  color: var(--text);
+}
+
+/* The severity explanation is the answer to "why is this critical for me?", so it reads as a
+   statement of fact rather than as body copy. */
+.fg-severity {
+  padding: 5px 8px;
+  border-left: 2px solid var(--accent);
+  background: var(--bg-panel);
+  color: var(--text-dim);
+}
+
+.fg-options-title {
+  margin: 10px 0 6px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.fg-options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  counter-reset: fg-option;
+}
+
+.fg-option {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  padding: 7px 9px;
+  counter-increment: fg-option;
+}
+
+.fg-option.is-recommended {
+  border-color: var(--accent);
+}
+
+.fg-option-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.fg-option-title {
+  font-weight: 600;
+}
+
+.fg-option-title::before {
+  content: counter(fg-option) ". ";
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.fg-badge {
+  padding: 0 5px;
+  border-radius: var(--radius);
+  background: var(--passed-bg);
+  color: var(--passed);
+  font-size: var(--fs-sm);
+}
+
+.fg-option-summary {
+  color: var(--text-dim);
+}
+
+.fg-option-tradeoff {
+  color: var(--text-faint);
+  margin-bottom: 0 !important;
+}
+
+.fg-yaml {
+  margin: 0 0 6px;
+  padding: 6px 8px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.fg-rationale {
+  margin-top: 10px !important;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-style: italic;
+}

@@ -1,6 +1,7 @@
 using ChartPilot.Api.Workspaces;
 using ChartPilot.Core.Charts;
 using ChartPilot.Core.Checks;
+using ChartPilot.Core.Checks.Guidance;
 using ChartPilot.Core.Manifests;
 using ChartPilot.Core.Profiles;
 using ChartPilot.Core.Review;
@@ -61,6 +62,7 @@ public static class DtoMapper
     public static FindingDto ToFindingDto(Finding finding, ICheckCatalog catalog)
     {
         var descriptor = catalog.Find(finding.CheckId);
+        var guidance = GuidanceCatalog.For(finding.CheckId);
 
         return new FindingDto(
             finding.CheckId,
@@ -73,8 +75,15 @@ public static class DtoMapper
             finding.Message,
             finding.Remediation,
             finding.YamlPath,
-            finding.SourceTemplate);
+            finding.SourceTemplate,
+            descriptor?.Rationale,
+            guidance?.WhatItMeans,
+            finding.SeverityReason,
+            guidance is null ? [] : [.. guidance.Options.Select(ToFixOptionDto)]);
     }
+
+    private static FixOptionDto ToFixOptionDto(FixOption option)
+        => new(option.Title, option.Summary, option.Yaml, option.Tradeoff, option.IsRecommended);
 
     public static PassedCheckDto ToPassedDto(PassedCheck passed)
         => new(passed.CheckId, passed.Title, passed.Category, passed.Resource?.Key);

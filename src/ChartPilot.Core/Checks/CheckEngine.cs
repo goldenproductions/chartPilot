@@ -78,7 +78,8 @@ public sealed class CheckEngine : ICheckEngine
                 continue;
             }
 
-            var severity = _severityResolver.Resolve(descriptor, profile, context.Classification);
+            var decision = _severityResolver.Explain(descriptor, profile, context.Classification);
+            var severity = decision.Severity;
             var produced = 0;
 
             foreach (var raw in check.Evaluate(context) ?? Enumerable.Empty<Finding>())
@@ -90,8 +91,9 @@ public sealed class CheckEngine : ICheckEngine
 
                 produced++;
 
-                // Rules emit their default severity; the resolved value is applied here.
-                var finding = raw with { Severity = severity };
+                // Rules emit their default severity; the resolved value, and the reason it was
+                // resolved that way, are applied here.
+                var finding = raw with { Severity = severity, SeverityReason = decision.Reason };
                 var match = FindSuppression(active, finding);
 
                 if (match is not null)
@@ -141,7 +143,8 @@ public sealed class CheckEngine : ICheckEngine
             return;
         }
 
-        var severity = _severityResolver.Resolve(descriptor, profile, context.Classification);
+        var decision = _severityResolver.Explain(descriptor, profile, context.Classification);
+        var severity = decision.Severity;
 
         foreach (var (suppression, problem) in invalid)
         {
@@ -152,7 +155,8 @@ public sealed class CheckEngine : ICheckEngine
                 severity,
                 null,
                 $"Suppression of {suppression.Id}{scope} {problem}, so the finding it waived has been re-raised.",
-                descriptor.Remediation));
+                descriptor.Remediation,
+                SeverityReason: decision.Reason));
         }
     }
 

@@ -13,9 +13,16 @@ public sealed class MarkdownReportWriterTests
     [Fact]
     public void Write_matches_the_snapshot()
     {
-        var actual = _writer.Write(ReviewResultFactory.SampleReview());
+        var actual = Normalize(_writer.Write(ReviewResultFactory.SampleReview()));
 
-        Assert.Equal(ReadFixture("review-report.md"), Normalize(actual));
+        // The report is user-facing text, so a change to it should be read as a diff rather than
+        // rubber-stamped. Set CHARTPILOT_UPDATE_SNAPSHOTS=1 to rewrite the fixture, then review it.
+        if (System.Environment.GetEnvironmentVariable("CHARTPILOT_UPDATE_SNAPSHOTS") == "1")
+        {
+            WriteSourceFixture("review-report.md", actual);
+        }
+
+        Assert.Equal(ReadFixture("review-report.md"), actual);
     }
 
     [Fact]
@@ -74,9 +81,13 @@ public sealed class MarkdownReportWriterTests
             ]
         };
 
+        // Scoped to the Recommended actions section: the guidance appendix that follows it also
+        // numbers its options, and those are a different list with a different job.
         var actions = _writer.Write(review)
             .Split('\n')
             .SkipWhile(line => !line.StartsWith("## Recommended actions", StringComparison.Ordinal))
+            .Skip(1)
+            .TakeWhile(line => !line.StartsWith("## ", StringComparison.Ordinal))
             .Where(line => line.Length > 0 && char.IsDigit(line[0]))
             .ToList();
 
@@ -125,6 +136,30 @@ public sealed class MarkdownReportWriterTests
             Path.Combine(AppContext.BaseDirectory, "Fixtures", "Reporting", name),
             Encoding.UTF8));
 
+
+    /// <summary>
+    /// Writes a fixture back to the source tree, not to the build output, so the regenerated file is
+    /// the one that gets committed and reviewed.
+    /// </summary>
+    private static void WriteSourceFixture(string name, string content)
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "ChartPilot.Core.Tests.csproj")))
+        {
+            directory = directory.Parent;
+        }
+
+        if (directory is null)
+        {
+            return;
+        }
+
+        File.WriteAllText(
+            Path.Combine(directory.FullName, "Fixtures", "Reporting", name),
+            content,
+            new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+    }
     internal static string Normalize(string text)
         => text.Replace("\r\n", "\n", StringComparison.Ordinal);
 }

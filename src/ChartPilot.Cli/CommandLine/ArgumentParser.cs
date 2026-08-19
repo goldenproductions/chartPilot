@@ -25,6 +25,7 @@ internal static class ArgumentParser
               --workflow <path>   Write a generated GitHub Actions workflow to <path>.
               --fail-on <level>   info | warning | critical. Exit 1 when a finding reaches <level>.
               --json              Emit the review as JSON instead of the human summary.
+              --explain           Print what each finding means and your options for fixing it.
           -h, --help              Show this help.
 
         Exit codes:
@@ -68,6 +69,7 @@ internal static class ArgumentParser
         string? workflowPath = null;
         Severity? failOn = null;
         var json = false;
+        var explain = false;
         var helpRequested = false;
         string? error = null;
         var index = 1;
@@ -142,6 +144,10 @@ internal static class ArgumentParser
                     json = true;
                     break;
 
+                case "--explain":
+                    explain = true;
+                    break;
+
                 default:
                     if (argument.StartsWith('-'))
                     {
@@ -187,7 +193,8 @@ internal static class ArgumentParser
             reportPath,
             workflowPath,
             failOn,
-            json));
+            json,
+            explain));
     }
 
     public static Severity? ParseSeverity(string? value) => value?.Trim().ToLowerInvariant() switch
@@ -202,5 +209,5 @@ internal static class ArgumentParser
         => argument is "-h" or "--help" or "/?";
 
     private static CliOptions Empty(CliCommand command)
-        => new(command, null, [], null, null, null, null, null, null, false);
+        => new(command, null, [], null, null, null, null, null, null, false, false);
 }
