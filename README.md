@@ -2,28 +2,28 @@
 
 **Helm Chart Review & Golden Path GUI**
 
-ChartPilot er en lokal webbaseret GUI til at forstå, konfigurere og kvalitetssikre Helm charts før deployment til Kubernetes.
+ChartPilot is a local, web-based GUI for understanding, configuring and quality-assuring Helm charts before they are deployed to Kubernetes.
 
-> ChartPilot parser chart metadata og values, renderer Kubernetes manifests live og kører platform checks for sikkerhed, driftbarhed og governance. Målet er at gøre det let for udviklere at bruge sikre standarder og let for platform-teams at skalere golden paths uden at blive flaskehals.
+> ChartPilot parses chart metadata and values, renders Kubernetes manifests live, and runs platform checks for security, operability and governance. The goal is to make it easy for developers to follow safe standards, and easy for platform teams to scale golden paths without becoming a bottleneck.
 
-## Hvad den gør
+## What it does
 
-1. Vælg et Helm chart — se metadata, dependencies og values-filer
-2. Redigér `values.yaml` i en YAML-editor (schema-guidet hvis `values.schema.json` findes)
-3. Render manifests live med `helm template`
-4. Udforsk de genererede Kubernetes-resources i et træ
-5. Kør platform readiness checks (reliability, security, Istio, cert-manager, observability)
-6. Få en platform score pr. kategori
-7. Sammenlign values på tværs af dev/test/prod
-8. Generér GitHub Actions workflow
-9. Eksportér en Markdown review-rapport
+1. Pick a Helm chart — see metadata, dependencies and values files
+2. Edit `values.yaml` in a YAML editor (schema-guided when `values.schema.json` exists)
+3. Render manifests live with `helm template`
+4. Explore the generated Kubernetes resources in a tree
+5. Run platform readiness checks (reliability, security, Istio, cert-manager, observability)
+6. Get a platform score per category
+7. Compare values across dev/test/prod
+8. Generate a GitHub Actions workflow
+9. Export a Markdown review report
 
 ## Status
 
-Design-fase. Fuld specifikation: [`docs/chartpilot-spec.md`](docs/chartpilot-spec.md).
+Design phase. Full specification: [`docs/chartpilot-spec.md`](docs/chartpilot-spec.md).
 
-## Påtænkt stack
+## Intended stack
 
 - **Frontend**: React + Vite + Monaco Editor
-- **Backend**: .NET Minimal API (kører `helm template` / `helm lint`, parser manifests, evaluerer policies)
-- **Bonus**: `chartpilot check` CLI til CI/CD
+- **Backend**: .NET Minimal API (runs `helm template` / `helm lint`, parses manifests, evaluates policies)
+- **Bonus**: a `chartpilot check` CLI for CI/CD

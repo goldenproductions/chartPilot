@@ -1,57 +1,57 @@
 # ChartPilot — Helm Chart Review & Golden Path GUI
 
-ChartPilot er en lokal webbaseret GUI til at forstå, konfigurere og kvalitetssikre Helm charts før deployment til Kubernetes.
+ChartPilot is a local, web-based GUI for understanding, configuring and quality-assuring Helm charts before they are deployed to Kubernetes.
 
-Formålet er ikke bare at gøre `values.yaml` mere læsbar, men at hjælpe både udviklere og platform-teams med at træffe bedre beslutninger omkring driftbarhed, sikkerhed, standardisering og release-kvalitet.
+The goal is not merely to make `values.yaml` more readable, but to help both developers and platform teams make better decisions about operability, security, standardization and release quality.
 
-I mange organisationer bliver Helm charts brugt som deployment-kontrakt mellem udviklere og platform-teamet. Men charts kan hurtigt blive komplekse, og små ændringer i `values.yaml` kan have stor effekt på de Kubernetes-resources, der faktisk bliver deployet. ChartPilot gør denne effekt synlig, før ændringerne rammer et miljø.
+In many organizations, Helm charts act as the deployment contract between developers and the platform team. But charts get complex quickly, and small changes in `values.yaml` can have a large effect on the Kubernetes resources that actually get deployed. ChartPilot makes that effect visible before the changes reach an environment.
 
-Projektet er tænkt som et lokalt, gratis og cloud-uafhængigt værktøj, men med direkte relevans for platforme baseret på AKS, Kubernetes, Helm, Istio, cert-manager, GitHub Actions og moderne platform engineering-principper.
+The project is intended as a local, free and cloud-independent tool, but with direct relevance to platforms built on AKS, Kubernetes, Helm, Istio, cert-manager, GitHub Actions and modern platform engineering principles.
 
 ---
 
 ## Elevator pitch
 
-> ChartPilot er en lokal GUI til Helm charts, der parser chart metadata og values, renderer Kubernetes manifests live og kører platform checks for sikkerhed, driftbarhed og governance. Målet er at gøre det let for udviklere at bruge sikre standarder og let for platform-teams at skalere golden paths uden at blive flaskehals.
+> ChartPilot is a local GUI for Helm charts that parses chart metadata and values, renders Kubernetes manifests live, and runs platform checks for security, operability and governance. The goal is to make it easy for developers to follow safe standards, and easy for platform teams to scale golden paths without becoming a bottleneck.
 
 ---
 
-## Problemet
+## The problem
 
-Helm er kraftfuldt, men ofte svært at arbejde sikkert med:
+Helm is powerful, but often hard to work with safely:
 
-- `values.yaml` kan være stor og uoverskuelig.
-- Det er svært at se, hvilke Kubernetes-resources en ændring faktisk genererer.
-- Udviklere kan nemt mangle vigtige platformkrav som probes, resource limits, NetworkPolicies eller sikre image tags.
-- Forskelle mellem dev, test og prod values kan være svære at overskue.
-- Sikkerheds- og driftskrav bliver ofte først opdaget sent i pipeline eller under review.
-- Platform-teams ender ofte med at være manuelle reviewers af de samme fejl igen og igen.
+- `values.yaml` can be large and hard to navigate.
+- It is hard to see which Kubernetes resources a change actually generates.
+- Developers can easily miss important platform requirements such as probes, resource limits, NetworkPolicies or safe image tags.
+- Differences between dev, test and prod values are hard to keep track of.
+- Security and operational requirements are often discovered late in the pipeline or during review.
+- Platform teams end up manually reviewing the same mistakes over and over.
 
-ChartPilot forsøger at flytte feedback tidligere i processen.
-
----
-
-## Løsningen
-
-ChartPilot giver en visuel arbejdsgang omkring Helm charts:
-
-1. Vælg et Helm chart.
-2. Se chart metadata, dependencies og standard values.
-3. Redigér `values.yaml` i en struktureret editor.
-4. Render manifests live med `helm template`.
-5. Se hvilke Kubernetes-resources der bliver genereret.
-6. Kør automatiske platform checks.
-7. Sammenlign values mellem miljøer.
-8. Generér forslag til CI/CD workflow eller deploy-kommandoer.
-9. Eksportér en valideret `values.yaml` og review-rapport.
+ChartPilot aims to move that feedback earlier in the process.
 
 ---
 
-## Primære features
+## The solution
+
+ChartPilot provides a visual workflow around Helm charts:
+
+1. Pick a Helm chart.
+2. Inspect chart metadata, dependencies and default values.
+3. Edit `values.yaml` in a structured editor.
+4. Render manifests live with `helm template`.
+5. See which Kubernetes resources get generated.
+6. Run automated platform checks.
+7. Compare values across environments.
+8. Generate a suggested CI/CD workflow or deploy commands.
+9. Export a validated `values.yaml` and a review report.
+
+---
+
+## Core features
 
 ### 1. Chart Overview
 
-ChartPilot læser og viser grundlæggende information fra chartet:
+ChartPilot reads and displays the basic information from the chart:
 
 - Chart name
 - Chart version
@@ -59,11 +59,11 @@ ChartPilot læser og viser grundlæggende information fra chartet:
 - Description
 - Dependencies
 - Maintainers
-- Tilgængelige values-filer
-- Om chartet har `values.schema.json`
-- Templates og Kubernetes resource-typer
+- Available values files
+- Whether the chart has a `values.schema.json`
+- Templates and Kubernetes resource types
 
-Eksempel:
+Example:
 
 ```text
 Chart: member-api
@@ -74,27 +74,27 @@ Schema: values.schema.json found
 Resources: Deployment, Service, VirtualService, Certificate
 ```
 
-Formålet er hurtigt at give både udviklere og platformfolk overblik over, hvad chartet indeholder.
+The point is to quickly give both developers and platform engineers an overview of what the chart contains.
 
 ---
 
 ### 2. Values Editor
 
-ChartPilot indeholder en YAML-editor til Helm values. Editoren kan arbejde på to niveauer:
+ChartPilot includes a YAML editor for Helm values. The editor works at two levels:
 
-**Simpel YAML mode** — brugeren redigerer direkte i `values.yaml`, men får syntax highlighting og valideringsfejl.
+**Plain YAML mode** — the user edits `values.yaml` directly, but gets syntax highlighting and validation errors.
 
-**Schema-baseret mode** — hvis chartet har `values.schema.json`, kan ChartPilot bruge schemaet til at vise mere guidede felter:
+**Schema-driven mode** — if the chart has a `values.schema.json`, ChartPilot can use the schema to present more guided fields:
 
-- tekstfelter
-- talfelter
+- text fields
+- number fields
 - booleans
 - dropdowns/enums
 - required fields
 - default values
-- beskrivelser fra schemaet
+- descriptions from the schema
 
-Eksempel:
+Example:
 
 ```yaml
 replicaCount: 3
@@ -110,34 +110,34 @@ resources:
     memory: 512Mi
 ```
 
-Målet er at gøre chart-konfiguration lettere at forstå uden at skjule YAML'en helt.
+The aim is to make chart configuration easier to understand without hiding the YAML entirely.
 
 ---
 
 ### 3. Live Helm Render
 
-Når brugeren ændrer values, kan ChartPilot køre:
+When the user changes values, ChartPilot can run:
 
 ```bash
 helm template release-name ./chart -f values.yaml
 ```
 
-og vise de genererede Kubernetes manifests direkte i GUI'en. Det gør det tydeligt, hvordan en ændring i values påvirker outputtet.
+and show the generated Kubernetes manifests directly in the GUI. This makes it obvious how a change in values affects the output.
 
-Eksempel — brugeren ændrer `replicaCount: 1` til `replicaCount: 3`, og ChartPilot viser, at dette ændrer:
+Example — the user changes `replicaCount: 1` to `replicaCount: 3`, and ChartPilot shows that this changes:
 
 ```yaml
 spec:
   replicas: 3
 ```
 
-i Deployment-manifestet.
+in the Deployment manifest.
 
 ---
 
 ### 4. Kubernetes Resource Explorer
 
-De renderede manifests vises som en struktureret liste:
+The rendered manifests are shown as a structured list:
 
 ```text
 Workloads
@@ -153,60 +153,60 @@ Certificates
   - Certificate/member-api-tls
 ```
 
-Når brugeren klikker på en resource, vises den fulde YAML.
+Clicking a resource shows its full YAML.
 
 ---
 
 ### 5. Platform Readiness Checks
 
-ChartPilot analyserer de renderede manifests og giver feedback på sikkerhed, stabilitet og driftbarhed.
+ChartPilot analyzes the rendered manifests and gives feedback on security, stability and operability.
 
 **Reliability**
 
-- Mangler `readinessProbe`
-- Mangler `livenessProbe`
-- Mangler resource requests
-- Mangler resource limits
-- Kun én replica i prod
-- Mangler PodDisruptionBudget
-- Rolling update strategy ikke sat
-- Ingen health endpoint eksponeret
+- Missing `readinessProbe`
+- Missing `livenessProbe`
+- Missing resource requests
+- Missing resource limits
+- Only one replica in prod
+- Missing PodDisruptionBudget
+- Rolling update strategy not set
+- No health endpoint exposed
 
 **Security**
 
-- Container kører som root
+- Container runs as root
 - `privileged: true`
-- Mangler `runAsNonRoot`
-- Mangler `readOnlyRootFilesystem`
-- Image tag er `latest`
-- Secrets ligger som klartekst i manifests
-- ServiceAccount token automount er aktiveret
-- Mangler NetworkPolicy
-- For bred RBAC
+- Missing `runAsNonRoot`
+- Missing `readOnlyRootFilesystem`
+- Image tag is `latest`
+- Secrets stored as plaintext in manifests
+- ServiceAccount token automount is enabled
+- Missing NetworkPolicy
+- Overly broad RBAC
 
 **Service mesh / Istio**
 
-- VirtualService uden tilhørende Gateway
-- Public route uden AuthorizationPolicy
-- Namespace mangler strict mTLS
-- Mangler DestinationRule
-- Ingen timeout/retry-policy
+- VirtualService without a matching Gateway
+- Public route without an AuthorizationPolicy
+- Namespace missing strict mTLS
+- Missing DestinationRule
+- No timeout/retry policy
 
 **cert-manager**
 
-- Certificate mangler `renewBefore`
-- Certificate duration er meget lang
-- Ugyldig eller ukendt issuer
-- TLS secret mangler reference
+- Certificate missing `renewBefore`
+- Certificate duration is very long
+- Invalid or unknown issuer
+- TLS secret reference missing
 
 **Observability**
 
-- Mangler Prometheus annotations eller ServiceMonitor
-- Mangler standard labels
-- Mangler correlation ID-konfiguration
-- Mangler logging configuration
+- Missing Prometheus annotations or ServiceMonitor
+- Missing standard labels
+- Missing correlation ID configuration
+- Missing logging configuration
 
-Output kunne se sådan ud:
+The output could look like this:
 
 ```text
 Platform Readiness: 78/100
@@ -231,7 +231,7 @@ Critical:
 
 ### 6. Risk Score / Platform Score
 
-ChartPilot kan give chartet en samlet score baseret på checks:
+ChartPilot can give the chart an aggregate score based on the checks:
 
 ```text
 Overall:     78/100
@@ -241,19 +241,19 @@ Operability: 85/100
 Governance:  70/100
 ```
 
-Scoren gør det hurtigt at vurdere, om et chart er klar til et miljø. Eksempel:
+The score makes it quick to judge whether a chart is ready for a given environment. For example:
 
-- Dev må deploye ved score over 60
-- Test kræver score over 75
-- Prod kræver score over 90 og ingen critical findings
+- Dev may deploy above a score of 60
+- Test requires a score above 75
+- Prod requires a score above 90 and no critical findings
 
-Det er ikke tænkt som en absolut sandhed, men som et review-værktøj der gør samtalen mere konkret.
+It is not meant as absolute truth, but as a review tool that makes the conversation more concrete.
 
 ---
 
 ### 7. Environment Diff
 
-ChartPilot kan sammenligne flere values-filer (`values-dev.yaml`, `values-test.yaml`, `values-prod.yaml`) og vise forskelle struktureret:
+ChartPilot can compare multiple values files (`values-dev.yaml`, `values-test.yaml`, `values-prod.yaml`) and show the differences in a structured way:
 
 ```diff
   replicaCount
@@ -277,13 +277,13 @@ ChartPilot kan sammenligne flere values-filer (`values-dev.yaml`, `values-test.y
 + prod: false
 ```
 
-Det gør det lettere at se, om prod faktisk er mere robust og sikkert end dev.
+This makes it easier to see whether prod is actually more robust and secure than dev.
 
 ---
 
 ### 8. GitHub Actions Generator
 
-Når chartet er valideret, kan ChartPilot generere en GitHub Actions workflow-skabelon:
+Once the chart is validated, ChartPilot can generate a GitHub Actions workflow template:
 
 ```yaml
 name: Helm Deploy
@@ -323,13 +323,13 @@ jobs:
             --create-namespace
 ```
 
-Dette viser koblingen mellem GUI-review og CI/CD.
+This demonstrates the link between GUI review and CI/CD.
 
 ---
 
 ### 9. Golden Path Profiles
 
-ChartPilot kan have forskellige platform-profiler:
+ChartPilot can carry different platform profiles:
 
 ```yaml
 profile: sensitive-internal-service
@@ -344,7 +344,7 @@ requirements:
   disallowLatestTag: true
 ```
 
-Mulige profiler:
+Possible profiles:
 
 - `public-web-service`
 - `internal-api`
@@ -353,13 +353,13 @@ Mulige profiler:
 - `legacy-integration-service`
 - `sandbox-service`
 
-Det gør værktøjet mere platform-orienteret end en generisk Helm GUI.
+This makes the tool more platform-oriented than a generic Helm GUI.
 
 ---
 
 ### 10. Data Classification Awareness
 
-En service kan markeres med dataklasse:
+A service can be marked with a data classification:
 
 ```yaml
 platform:
@@ -367,27 +367,27 @@ platform:
   exposure: internal
 ```
 
-Hvis en service håndterer følsomme persondata, skærper ChartPilot checks:
+If a service handles sensitive personal data, ChartPilot tightens the checks:
 
-- ingen public ingress
-- NetworkPolicy kræves
-- mTLS kræves
-- AuthorizationPolicy kræves
-- secrets må ikke være inline
-- audit/logging labels kræves
-- resource limits kræves
-- image scanning bør være aktiv
-- CI/CD skal have ekstra gates
+- no public ingress
+- NetworkPolicy required
+- mTLS required
+- AuthorizationPolicy required
+- secrets must not be inline
+- audit/logging labels required
+- resource limits required
+- image scanning should be enabled
+- CI/CD must have extra gates
 
-Dette gør værktøjet relevant for organisationer med medlemsdata, persondata eller andre følsomme domæner.
+This makes the tool relevant for organizations handling member data, personal data or other sensitive domains.
 
 ---
 
 ### 11. cert-manager Support
 
-ChartPilot kan genkende og analysere cert-manager resources: `Certificate`, `Issuer`, `ClusterIssuer`, TLS secret references.
+ChartPilot can recognize and analyze cert-manager resources: `Certificate`, `Issuer`, `ClusterIssuer`, TLS secret references.
 
-Eksempel på feedback:
+Example feedback:
 
 ```text
 [+] Certificate member-api-tls found
@@ -400,9 +400,9 @@ Eksempel på feedback:
 
 ### 12. Istio Support
 
-ChartPilot kan analysere Istio-konfiguration: `Gateway`, `VirtualService`, `DestinationRule`, `AuthorizationPolicy`, `PeerAuthentication`.
+ChartPilot can analyze Istio configuration: `Gateway`, `VirtualService`, `DestinationRule`, `AuthorizationPolicy`, `PeerAuthentication`.
 
-Eksempel på feedback:
+Example feedback:
 
 ```text
 [+] VirtualService routes to Service/member-api
@@ -412,13 +412,13 @@ Eksempel på feedback:
 [x] Public route has no AuthorizationPolicy
 ```
 
-Det gør projektet meget relevant for organisationer, der bruger service mesh.
+This makes the project highly relevant for organizations running a service mesh.
 
 ---
 
 ### 13. Exportable Review Report
 
-Efter review kan ChartPilot eksportere en Markdown-rapport:
+After a review, ChartPilot can export a Markdown report:
 
 > **ChartPilot Review: member-api**
 >
@@ -447,18 +447,18 @@ Efter review kan ChartPilot eksportere en Markdown-rapport:
 > 3. Add PodDisruptionBudget
 > 4. Add livenessProbe
 
-Rapporten kan bruges i pull requests eller som dokumentation til release reviews.
+The report can be used in pull requests or as documentation for release reviews.
 
 ---
 
-## Mulig teknisk arkitektur
+## Possible technical architecture
 
 ### Frontend
 
 - React
 - Vite
-- Monaco Editor til YAML
-- Resource tree-view
+- Monaco Editor for YAML
+- Resource tree view
 - Diff viewer
 - Score/check cards
 
@@ -466,36 +466,36 @@ Rapporten kan bruges i pull requests eller som dokumentation til release reviews
 
 **Option A: .NET Minimal API**
 
-- Matcher IDA's backend-stack
-- God samtalevinkel
-- Let at lave API'er og process execution
+- Matches IDA's backend stack
+- Good conversation angle
+- Easy to build APIs and run external processes
 
 **Option B: Go**
 
-- Naturligt til Kubernetes tooling
-- God performance
+- Natural fit for Kubernetes tooling
+- Good performance
 - Single binary
-- Mange Kubernetes libraries
+- Many Kubernetes libraries
 
-Anbefaling til jobsamtalen:
+Recommendation for the interview:
 
-> **.NET Minimal API + React**, fordi det både viser platform engineering og kobler til deres C#/.NET-miljø.
+> **.NET Minimal API + React**, because it demonstrates platform engineering while connecting to their C#/.NET environment.
 
-### Backend ansvar
+### Backend responsibilities
 
-- Køre `helm template`
-- Køre `helm lint`
+- Run `helm template`
+- Run `helm lint`
 - Parse YAML manifests
-- Køre policy checks
-- Returnere resources, warnings og score til frontend
-- Generere GitHub Actions snippets
-- Eksportere Markdown review report
+- Run policy checks
+- Return resources, warnings and score to the frontend
+- Generate GitHub Actions snippets
+- Export the Markdown review report
 
 ---
 
-## CLI som bonus
+## CLI as a bonus
 
-Selvom hovedideen er GUI, kan der også være en CLI:
+Although the main idea is a GUI, there can also be a CLI:
 
 ```bash
 chartpilot check ./chart -f values-prod.yaml --profile sensitive-internal-service
@@ -510,4 +510,4 @@ Warnings: 4
 Run with --report report.md to export full review.
 ```
 
-Det gør projektet brugbart i CI/CD, ikke kun manuelt.
+This makes the project usable in CI/CD, not just manually.
