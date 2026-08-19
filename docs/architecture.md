@@ -219,13 +219,27 @@ Weights and deductions live in the profile, not in code, so an organization can 
 
 ## 6. Helm integration
 
+### 6.0 Target version
+
+Developed against **Helm v4.2.4** (`winget install Helm.Helm`). The output contract ChartPilot depends on is unchanged from Helm 3, and has been verified on this machine:
+
+- `helm template` writes a `---`-separated multi-document stream to stdout
+- every document is preceded by a `# Source: <chart>/templates/<file>.yaml` comment — this is what populates `RenderedResource.SourceTemplate`, and therefore what lets a finding point back at the template that produced it
+- `-f/--values`, `--set*`, `--dependency-update`, `--include-crds`, `--skip-tests` and `--kube-version` are all present
+- `helm lint` emits `[INFO]/[WARNING]/[ERROR] <file>: <message>` lines, which map cleanly onto `CP-GOV-*` findings
+
+`IHelmClient` parses only these two contracts, so a Helm 3 binary works too. The resolved version is reported by `/environment` and recorded in the review report, since a rendered manifest is only reproducible alongside the renderer that produced it.
+
+Two rendering flags are deliberate defaults rather than pass-throughs: `--include-crds` is **on** (a chart that ships CRDs should have them reviewed) and `--skip-tests` is **on** (Helm test pods are not part of the deployed surface and would otherwise pollute the resource tree and the score).
+
 ### 6.1 Locating the binary
 
-`helm` is **not currently installed on this machine** (`winget install Helm.Helm`). Rather than assuming, `HelmLocator` resolves in order:
+`helm` is typically not on the machine PATH in a predictable place — on this machine winget installed it to
+`%LOCALAPPDATA%\Microsoft\WinGet\Packages\Helm.Helm_*\windows-amd64\helm.exe`. `HelmLocator` therefore resolves in order:
 
 1. `ChartPilot:HelmPath` from configuration
 2. `helm` on `PATH`
-3. Well-known install locations (`%ProgramFiles%\helm`, `~/.local/bin`, Chocolatey/winget shims)
+3. Well-known install locations (winget package dirs, `%ProgramFiles%\helm`, Chocolatey shims, `~/.local/bin`)
 
 `GET /api/v1/environment` reports the resolved path and version, and the GUI shows an actionable banner with the install command when it is missing — instead of a cryptic 500 on first render.
 

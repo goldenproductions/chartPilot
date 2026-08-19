@@ -40,6 +40,6 @@ Design phase — spec and architecture written, no code yet. Next up is **M0**, 
 
 - .NET 10 SDK
 - Node.js 20+
-- `helm` on `PATH` (`winget install Helm.Helm`) — ChartPilot detects it at startup and tells you if it is missing
+- Helm 3 or 4 (`winget install Helm.Helm`; developed against v4.2.4) — ChartPilot locates the binary at startup and tells you if it is missing
 
 ChartPilot never needs a kubeconfig and never contacts a cluster.
